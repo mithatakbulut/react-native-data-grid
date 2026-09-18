@@ -1,0 +1,42 @@
+{
+  "name": "react-native-data-grid",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w1that/react-native-data-grid.git"
+  },
+  "homepage": "https://github.com/w1that/react-native-data-grid#readme",
+  "bugs": {
+    "url": "https://github.com/w1that/react-native-data-grid/issues"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "build": "pnpm --filter @react-native-data-grid/core build && pnpm --filter @react-native-data-grid/react-native build",
+    "test": "pnpm --filter @react-native-data-grid/core test && pnpm --filter @react-native-data-grid/react-native test",
+    "test:e2e:setup": "bash e2e/scripts/ensure-maestro.sh",
+    "test:e2e": "bash e2e/scripts/run-maestro.sh test e2e/maestro/pinned-columns.yaml e2e/maestro/pinned-columns-100-cols.yaml e2e/maestro/pinned-columns-multi-left.yaml e2e/maestro/pinned-columns-nested-scroll.yaml e2e/maestro/pinned-columns-central-column.yaml e2e/maestro/pinned-columns-viewports.yaml e2e/maestro/pinned-columns-rich-cells.yaml e2e/maestro/pinned-columns-image-cells.yaml",
+    "test:e2e:screenshots": "bash e2e/scripts/run-maestro.sh test e2e/maestro/screenshots",
+    "test:e2e:screenshots:compare": "node e2e/scripts/compare-screenshots.mjs",
+    "typecheck": "pnpm --filter @react-native-data-grid/core typecheck && pnpm --filter @react-native-data-grid/core build && pnpm --filter @react-native-data-grid/react-native typecheck && pnpm --filter @react-native-data-grid/react-native build && pnpm --filter @react-native-data-grid/demo typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "demo": "pnpm --filter @react-native-data-grid/demo start",
+    "demo:install:ios": "pnpm build && pnpm --filter @react-native-data-grid/demo run:ios",
+    "demo:install:android": "bash e2e/scripts/run-android-build.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.9.8",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0"
+  }
+}

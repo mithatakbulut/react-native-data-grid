@@ -1,0 +1,6 @@
+appId: com.reactnativedatagrid.demo
+---
+- swipe:
+    from:
+      id: 'demo-grid-horizontal-scroll'
+    direction: RIGHT

@@ -1,0 +1,13 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: ../subflows/launch-demo.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- takeScreenshot: right-pinned-initial
+- repeat:
+    times: 4
+    commands:
+      - runFlow: ../subflows/scroll-grid-right.yaml
+- takeScreenshot: right-pinned-mid-horizontal
+- runFlow: ../subflows/scroll-grid-down.yaml
+- takeScreenshot: right-pinned-mid-vertical

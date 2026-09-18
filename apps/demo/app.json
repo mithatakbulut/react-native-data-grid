@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Grid Geometry Demo",
+    "slug": "grid-geometry-demo",
+    "version": "0.1.0",
+    "ios": {
+      "bundleIdentifier": "com.reactnativedatagrid.demo"
+    },
+    "android": {
+      "package": "com.reactnativedatagrid.demo"
+    },
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": []
+  }
+}

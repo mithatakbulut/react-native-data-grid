@@ -1,0 +1,15 @@
+node_modules
+**/node_modules/**
+.pnpm-store
+dist
+coverage
+pnpm-lock.yaml
+*.map
+
+# Generated native / build output (demo app)
+apps/demo/android/app/build/
+apps/demo/android/app/.cxx/
+apps/demo/android/build/
+apps/demo/android/.gradle/
+apps/demo/ios/build/
+apps/demo/.expo/

@@ -1,0 +1,59 @@
+{
+  "name": "@react-native-data-grid/react-native",
+  "version": "0.1.0",
+  "description": "Virtualized 2D data grid for React Native with pinned columns, fixed row height, and imperative scroll API.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "react-native",
+    "data-grid",
+    "virtualization",
+    "table",
+    "pinned-columns",
+    "scroll"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w1that/react-native-data-grid.git",
+    "directory": "packages/react-native"
+  },
+  "homepage": "https://github.com/w1that/react-native-data-grid#readme",
+  "bugs": {
+    "url": "https://github.com/w1that/react-native-data-grid/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build && pnpm run test"
+  },
+  "dependencies": {
+    "@react-native-data-grid/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0",
+    "react-native": ">=0.79.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-test-renderer": "19.0.0",
+    "react": "^19.0.0",
+    "react-native": "^0.79.0",
+    "react-test-renderer": "19.0.0",
+    "vitest": "4.1.11"
+  }
+}

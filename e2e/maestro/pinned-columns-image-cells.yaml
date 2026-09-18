@@ -1,0 +1,37 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: subflows/launch-demo.yaml
+- tapOn:
+    id: 'demo-preset-10k-x-20'
+- tapOn:
+    id: 'demo-cell-mode-image'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- assertVisible:
+    id: 'demo-grid-image-pinned-0'
+- assertVisible:
+    id: 'demo-grid-image-center-0'
+- runFlow: subflows/scroll-grid-right.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- assertVisible:
+    id: 'demo-grid-image-pinned-0'
+# 10k preset → scrollToRow(5000); avoids device-specific swipe distance.
+- tapOn:
+    id: 'demo-jump-to-middle'
+- waitForAnimationToEnd
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- assertVisible:
+    id: 'demo-grid-image-pinned-5000'
+- assertNotVisible:
+    id: 'demo-grid-image-pinned-0'
+- runFlow: subflows/scroll-grid-left.yaml
+- assertVisible:
+    id: 'demo-grid-image-center-5000'

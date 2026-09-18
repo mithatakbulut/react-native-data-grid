@@ -1,0 +1,7 @@
+appId: com.reactnativedatagrid.demo
+---
+- launchApp:
+    clearState: true
+- assertVisible: '2D Virtualization Lab'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'

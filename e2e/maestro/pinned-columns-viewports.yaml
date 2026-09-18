@@ -1,0 +1,32 @@
+# Run this flow on the narrowest supported phone profile and again on a tablet-sized
+# simulator. Pinned headers must remain visible in both runs.
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: subflows/launch-demo.yaml
+- tapOn:
+    id: 'demo-preset-100k-x-20'
+- tapOn:
+    id: 'demo-pinned-left-plus'
+- tapOn:
+    id: 'demo-pinned-left-plus'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-customer'
+- assertVisible:
+    id: 'demo-grid-pinned-header-region'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- repeat:
+    times: 4
+    commands:
+      - runFlow: subflows/scroll-grid-right.yaml
+      - runFlow: subflows/scroll-grid-down.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-customer'
+- assertVisible:
+    id: 'demo-grid-pinned-header-region'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'

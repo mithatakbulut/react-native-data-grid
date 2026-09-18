@@ -1,0 +1,47 @@
+{
+  "name": "@react-native-data-grid/core",
+  "version": "0.1.0",
+  "description": "React-free layout engine for virtualized data grids with fixed row height, known column widths, and pinned columns.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "react-native",
+    "data-grid",
+    "virtualization",
+    "table",
+    "pinned-columns",
+    "layout"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w1that/react-native-data-grid.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/w1that/react-native-data-grid#readme",
+  "bugs": {
+    "url": "https://github.com/w1that/react-native-data-grid/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "prepublishOnly": "pnpm run build && pnpm run test"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  }
+}

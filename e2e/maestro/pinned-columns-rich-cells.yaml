@@ -1,0 +1,19 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: subflows/launch-demo.yaml
+- tapOn:
+    id: 'demo-cell-mode-rich'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- runFlow: subflows/scroll-grid-right.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- runFlow: subflows/scroll-grid-down.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'

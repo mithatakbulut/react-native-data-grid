@@ -1,0 +1,48 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: subflows/launch-demo.yaml
+
+# One left pinned column (default)
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertNotVisible:
+    id: 'demo-grid-pinned-header-customer'
+- runFlow: subflows/scroll-grid-right.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+
+# Two left pinned columns
+- tapOn:
+    id: 'demo-pinned-left-plus'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-customer'
+- repeat:
+    times: 3
+    commands:
+      - runFlow: subflows/scroll-grid-right.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-customer'
+
+# Three left pinned columns
+- tapOn:
+    id: 'demo-pinned-left-plus'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-customer'
+- assertVisible:
+    id: 'demo-grid-pinned-header-region'
+- repeat:
+    times: 5
+    commands:
+      - runFlow: subflows/scroll-grid-right.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-customer'
+- assertVisible:
+    id: 'demo-grid-pinned-header-region'

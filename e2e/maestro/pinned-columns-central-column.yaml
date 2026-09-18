@@ -1,0 +1,13 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: subflows/launch-demo.yaml
+- assertVisible: 'Customer'
+- repeat:
+    times: 6
+    commands:
+      - runFlow: subflows/scroll-grid-right.yaml
+- assertNotVisible: 'Customer'
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'

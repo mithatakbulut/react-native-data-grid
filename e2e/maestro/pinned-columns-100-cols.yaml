@@ -1,0 +1,20 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: subflows/launch-demo.yaml
+- tapOn:
+    id: 'demo-preset-100k-x-100'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- repeat:
+    times: 10
+    commands:
+      - runFlow: subflows/scroll-grid-right.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'
+- runFlow: subflows/scroll-grid-down.yaml
+- assertVisible:
+    id: 'demo-grid-pinned-header-id'
+- assertVisible:
+    id: 'demo-grid-pinned-header-actions'

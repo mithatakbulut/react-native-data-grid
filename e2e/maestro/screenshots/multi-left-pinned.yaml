@@ -1,0 +1,15 @@
+appId: com.reactnativedatagrid.demo
+---
+- runFlow: ../subflows/launch-demo.yaml
+- tapOn:
+    id: 'demo-pinned-left-plus'
+- tapOn:
+    id: 'demo-pinned-left-plus'
+- takeScreenshot: multi-left-pinned-initial
+- repeat:
+    times: 4
+    commands:
+      - runFlow: ../subflows/scroll-grid-right.yaml
+- takeScreenshot: multi-left-pinned-mid-horizontal
+- runFlow: ../subflows/scroll-grid-down.yaml
+- takeScreenshot: multi-left-pinned-mid-vertical

@@ -1,0 +1,26 @@
+node_modules/
+.pnpm-store/
+coverage/
+.expo/
+dist/
+*.log
+.DS_Store
+
+# Internal planning docs (not for public repo)
+docs/plan.md
+docs/publish-plan.md
+docs/test-plan.md
+docs/test-cases-plan.md
+
+# Native / generated build output
+apps/demo/android/app/build/
+apps/demo/android/app/.cxx/
+apps/demo/android/build/
+apps/demo/android/.gradle/
+apps/demo/android/local.properties
+apps/demo/ios/build/
+*.keystore
+
+# Secrets
+.env
+.env.*

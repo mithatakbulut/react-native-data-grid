@@ -55,6 +55,7 @@ vi.mock('react-native', async () => {
         }
     },
     ScrollView,
+    Pressable: createPrimitive('Pressable'),
     StyleSheet: { create: <Style>(styles: Style) => styles, hairlineWidth: 1 },
     Text: createPrimitive('Text'),
     View: createPrimitive('View'),

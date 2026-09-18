@@ -95,6 +95,19 @@ const theme: DataGridTheme = {
 
 `getRowStyle` and `getCellStyle` run for every mounted row or cell, so keep them inexpensive; use `theme` for static styles. The grid retains control of positional geometry.
 
+## Interaction
+
+Use `onCellPress`, `onCellLongPress`, and `onRowPress` for whole-cell interactions. Cell events contain `{ row, rowIndex, column, columnIndex }`; row events contain `{ row, rowIndex }`. Pinned and center cells use the same event shapes. If both press callbacks are provided, `onCellPress` runs before `onRowPress` for the same tap. The grid mounts native `Pressable` surfaces only when at least one interaction callback is supplied.
+
+```tsx
+<DataGrid
+  {...props}
+  onCellPress={({ row, column }) => openCell(row, column.id)}
+  onCellLongPress={({ row, column }) => showCellActions(row, column.id)}
+  onRowPress={({ row }) => openRow(row)}
+/>
+```
+
 ## Imperative API
 
 Pass a ref to access `DataGridHandle`:

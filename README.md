@@ -122,6 +122,17 @@ ref.current?.resetProfiling()
 
 ## Callbacks
 
+`onCellPress`, `onCellLongPress`, and `onRowPress` provide full-cell interaction without adding a wrapper in every `renderCell`. Cell events contain `{ row, rowIndex, column, columnIndex }`; row events contain `{ row, rowIndex }`. The callbacks work the same for center and pinned cells. When both press callbacks are supplied, `onCellPress` runs before `onRowPress` for the same tap. No `Pressable` cell surfaces are mounted when these callbacks are absent.
+
+```tsx
+<DataGrid
+  {...props}
+  onCellPress={({ row, column }) => openCell(row, column.id)}
+  onCellLongPress={({ row, column }) => showCellActions(row, column.id)}
+  onRowPress={({ row }) => openRow(row)}
+/>
+```
+
 `onVisibleRangeChange` fires when the visible row or column window changes:
 
 ```tsx

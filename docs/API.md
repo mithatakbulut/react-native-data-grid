@@ -23,6 +23,9 @@ Both components accept the same props. `DataGrid` virtualizes rows and columns; 
 | `theme`                | `DataGridTheme`                     | —       | Static styles for grid structural surfaces                            |
 | `getRowStyle`          | `(context) => StyleProp<ViewStyle>` | —       | Additional style for each mounted body row                            |
 | `getCellStyle`         | `(context) => StyleProp<ViewStyle>` | —       | Additional style for each mounted body cell                           |
+| `onCellPress`          | `(event) => void`                   | —       | Called when a body cell is pressed                                    |
+| `onCellLongPress`      | `(event) => void`                   | —       | Called when a body cell is long-pressed                               |
+| `onRowPress`           | `(event) => void`                   | —       | Called when any body cell in a row is pressed                         |
 | `testID`               | `string`                            | —       | Native test id; scroll surfaces and pinned cells use derived suffixes |
 | `onVisibleRangeChange` | `(range) => void`                   | —       | Called when visible row/column windows change                         |
 | `enableProfiling`      | `boolean`                           | `false` | Dev-only React Profiler counters; disable for benchmarks              |
@@ -48,6 +51,10 @@ const theme: DataGridTheme = {
 ```
 
 Use `getRowStyle({ row, rowIndex })` for row-specific presentation and `getCellStyle({ row, rowIndex, column, columnIndex })` for cell-specific presentation. These resolvers run for every mounted row or cell; keep them cheap and prefer `theme` for static styling.
+
+#### Interaction
+
+`onCellPress` and `onCellLongPress` receive `DataGridCellEvent<Row>`: `{ row, rowIndex, column, columnIndex }`. `onRowPress` receives `DataGridRowEvent<Row>`: `{ row, rowIndex }`. All three callbacks apply identically to center and pinned body cells. If both press callbacks are provided, a tap invokes `onCellPress` followed by `onRowPress`; a long press invokes only `onCellLongPress`. No native `Pressable` surfaces are mounted when no interaction callbacks are supplied.
 
 #### `DataGridColumn<Row>`
 

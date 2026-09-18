@@ -18,6 +18,7 @@ import {
 } from 'react'
 import {
   Animated,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -59,6 +60,12 @@ export type DataGridCellStyleContext<Row> = DataGridRowStyleContext<Row> & {
   readonly columnIndex: number
 }
 
+/** Identifies a body cell for interaction callbacks. */
+export type DataGridCellEvent<Row> = DataGridCellStyleContext<Row>
+
+/** Identifies a body row for interaction callbacks. */
+export type DataGridRowEvent<Row> = DataGridRowStyleContext<Row>
+
 export type DataGridProps<Row> = {
   readonly rowCount: number
   readonly getRow: (rowIndex: number) => Row
@@ -74,6 +81,12 @@ export type DataGridProps<Row> = {
   readonly getRowStyle?: (context: DataGridRowStyleContext<Row>) => StyleProp<ViewStyle>
   /** Resolves an additional body-cell style for each mounted cell. */
   readonly getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  /** Called when a body cell is pressed. Also fires before onRowPress when both are supplied. */
+  readonly onCellPress?: (event: DataGridCellEvent<Row>) => void
+  /** Called when a body cell is long-pressed. */
+  readonly onCellLongPress?: (event: DataGridCellEvent<Row>) => void
+  /** Called when any body cell in a row is pressed. */
+  readonly onRowPress?: (event: DataGridRowEvent<Row>) => void
   /** Optional native test identifier. Child scroll surfaces and pinned cells derive stable suffixes. */
   readonly testID?: string
   readonly onVisibleRangeChange?: (range: {
@@ -137,6 +150,9 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
     theme,
     getRowStyle,
     getCellStyle,
+    onCellPress,
+    onCellLongPress,
+    onRowPress,
     testID,
     onVisibleRangeChange,
     enableProfiling = false,
@@ -347,6 +363,9 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
                   getRow={getRow}
                   getRowStyle={getRowStyle}
                   getCellStyle={getCellStyle}
+                  onCellPress={onCellPress}
+                  onCellLongPress={onCellLongPress}
+                  onRowPress={onRowPress}
                   columns={columns}
                   centerColumns={window.columns}
                   pinnedColumns={pinnedColumns}
@@ -452,6 +471,9 @@ type RowProps<Row> = {
   getRow: (index: number) => Row
   getRowStyle?: (context: DataGridRowStyleContext<Row>) => StyleProp<ViewStyle>
   getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  onCellPress?: (event: DataGridCellEvent<Row>) => void
+  onCellLongPress?: (event: DataGridCellEvent<Row>) => void
+  onRowPress?: (event: DataGridRowEvent<Row>) => void
   columns: readonly DataGridColumn<Row>[]
   centerColumns: ItemRange
   pinnedColumns: readonly PinnedColumn[]
@@ -468,6 +490,9 @@ const GridRow = memo(function GridRow<Row>({
   getRow,
   getRowStyle,
   getCellStyle,
+  onCellPress,
+  onCellLongPress,
+  onRowPress,
   columns,
   centerColumns,
   pinnedColumns,
@@ -500,6 +525,9 @@ const GridRow = memo(function GridRow<Row>({
             width={item.size}
             height={height}
             getCellStyle={getCellStyle}
+            onCellPress={onCellPress}
+            onCellLongPress={onCellLongPress}
+            onRowPress={onRowPress}
             theme={theme}
             profiling={profiling}
           />
@@ -518,6 +546,9 @@ const GridRow = memo(function GridRow<Row>({
             scrollX={scrollX}
             height={height}
             getCellStyle={getCellStyle}
+            onCellPress={onCellPress}
+            onCellLongPress={onCellLongPress}
+            onRowPress={onRowPress}
             theme={theme}
             profiling={profiling}
             testID={testID ? `${testID}-pinned-cell-${rowIndex}-${column.id}` : undefined}
@@ -537,6 +568,9 @@ type GridCellProps<Row> = {
   width: number
   height: number
   getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  onCellPress?: (event: DataGridCellEvent<Row>) => void
+  onCellLongPress?: (event: DataGridCellEvent<Row>) => void
+  onRowPress?: (event: DataGridRowEvent<Row>) => void
   theme?: DataGridTheme
   profiling: GridProfilingRecorder
 }
@@ -549,6 +583,9 @@ const GridCell = memo(function GridCell<Row>({
   width,
   height,
   getCellStyle,
+  onCellPress,
+  onCellLongPress,
+  onRowPress,
   theme,
   profiling
 }: GridCellProps<Row>) {
@@ -558,8 +595,24 @@ const GridCell = memo(function GridCell<Row>({
     return () => profiling.recordCellUnmount()
   }, [profiling])
   const cellStyle = getCellStyle?.({ row, rowIndex, column, columnIndex })
+  const cellEvent = { row, rowIndex, column, columnIndex }
   return (
-    <CellFrame left={left} width={width} height={height} style={cellStyle} theme={theme}>
+    <CellFrame
+      left={left}
+      width={width}
+      height={height}
+      style={cellStyle}
+      theme={theme}
+      onPress={
+        onCellPress || onRowPress
+          ? () => {
+              onCellPress?.(cellEvent)
+              onRowPress?.({ row, rowIndex })
+            }
+          : undefined
+      }
+      onLongPress={onCellLongPress ? () => onCellLongPress(cellEvent) : undefined}
+    >
       {column.renderCell({ row, rowIndex, column })}
     </CellFrame>
   )
@@ -574,6 +627,9 @@ type GridPinnedCellProps<Row> = {
   scrollX: Animated.Value
   height: number
   getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  onCellPress?: (event: DataGridCellEvent<Row>) => void
+  onCellLongPress?: (event: DataGridCellEvent<Row>) => void
+  onRowPress?: (event: DataGridRowEvent<Row>) => void
   theme?: DataGridTheme
   profiling: GridProfilingRecorder
   testID?: string
@@ -587,6 +643,9 @@ const GridPinnedCell = memo(function GridPinnedCell<Row>({
   scrollX,
   height,
   getCellStyle,
+  onCellPress,
+  onCellLongPress,
+  onRowPress,
   theme,
   profiling,
   testID
@@ -602,6 +661,7 @@ const GridPinnedCell = memo(function GridPinnedCell<Row>({
     column: definition,
     columnIndex: column.index
   })
+  const cellEvent = { row, rowIndex, column: definition, columnIndex: column.index }
   return (
     <PinnedFrame
       column={column}
@@ -611,6 +671,15 @@ const GridPinnedCell = memo(function GridPinnedCell<Row>({
       style={cellStyle}
       theme={theme}
       testID={testID}
+      onPress={
+        onCellPress || onRowPress
+          ? () => {
+              onCellPress?.(cellEvent)
+              onRowPress?.({ row, rowIndex })
+            }
+          : undefined
+      }
+      onLongPress={onCellLongPress ? () => onCellLongPress(cellEvent) : undefined}
     >
       {definition.renderCell({ row, rowIndex, column: definition })}
     </PinnedFrame>
@@ -625,10 +694,24 @@ type FrameProps = {
   style?: StyleProp<ViewStyle>
   theme?: DataGridTheme
   children: ReactNode
+  onPress?: () => void
+  onLongPress?: () => void
 }
-function CellFrame({ left, width, height, variant, style, theme, children }: FrameProps) {
+function CellFrame({
+  left,
+  width,
+  height,
+  variant,
+  style,
+  theme,
+  children,
+  onPress,
+  onLongPress
+}: FrameProps) {
+  const interactive = onPress !== undefined || onLongPress !== undefined
+  const Component = interactive ? Pressable : View
   return (
-    <View
+    <Component
       style={[
         styles.cell,
         theme?.cell,
@@ -637,9 +720,11 @@ function CellFrame({ left, width, height, variant, style, theme, children }: Fra
         style,
         { left, width, height }
       ]}
+      onPress={onPress}
+      onLongPress={onLongPress}
     >
       {children}
-    </View>
+    </Component>
   )
 }
 
@@ -658,8 +743,11 @@ function PinnedFrame({
   style,
   theme,
   children,
-  testID
+  testID,
+  onPress,
+  onLongPress
 }: PinnedFrameProps) {
+  const interactive = onPress !== undefined || onLongPress !== undefined
   const targetLeft =
     column.pinned === 'left'
       ? column.pinnedOffset
@@ -670,6 +758,7 @@ function PinnedFrame({
       testID={testID}
       style={[
         styles.cell,
+        interactive && styles.interactivePinnedCell,
         theme?.cell,
         styles.pinnedCell,
         theme?.pinnedCell,
@@ -684,7 +773,13 @@ function PinnedFrame({
         }
       ]}
     >
-      {children}
+      {interactive ? (
+        <Pressable style={styles.interactionSurface} onPress={onPress} onLongPress={onLongPress}>
+          {children}
+        </Pressable>
+      ) : (
+        children
+      )}
     </Animated.View>
   )
 }
@@ -893,5 +988,12 @@ const styles = StyleSheet.create({
     elevation: 1
   },
   headerCell: { backgroundColor: '#f8fafc', borderBottomWidth: 0 },
-  headerText: { fontSize: 12, fontWeight: '700', color: '#334155', textTransform: 'uppercase' }
+  headerText: { fontSize: 12, fontWeight: '700', color: '#334155', textTransform: 'uppercase' },
+  interactivePinnedCell: { paddingHorizontal: 0 },
+  interactionSurface: {
+    position: 'absolute',
+    inset: 0,
+    justifyContent: 'center',
+    paddingHorizontal: 12
+  }
 })

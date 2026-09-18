@@ -8,11 +8,13 @@ import {
 import {
   DataGrid,
   RowVirtualizedDataGrid,
+  type DataGridCellEvent,
   type DataGridColumn,
   type DataGridHandle
 } from '../src/index.js'
 import type {
   DataGridCellStyleContext,
+  DataGridRowEvent,
   DataGridRowStyleContext,
   DataGridTheme
 } from '../src/index.js'
@@ -49,6 +51,9 @@ export type RenderGridOptions<Row = TestRow> = {
   readonly theme?: DataGridTheme
   readonly getRowStyle?: (context: DataGridRowStyleContext<Row>) => StyleProp<ViewStyle>
   readonly getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  readonly onCellPress?: (event: DataGridCellEvent<Row>) => void
+  readonly onCellLongPress?: (event: DataGridCellEvent<Row>) => void
+  readonly onRowPress?: (event: DataGridRowEvent<Row>) => void
   readonly gridRef?: { readonly current: DataGridHandle | null }
   readonly onVisibleRangeChange?: (range: {
     readonly rows: { readonly startIndex: number; readonly endIndex: number }
@@ -76,6 +81,9 @@ export function createGridElement<Row = TestRow>(
     theme,
     getRowStyle,
     getCellStyle,
+    onCellPress,
+    onCellLongPress,
+    onRowPress,
     gridRef,
     onVisibleRangeChange
   } = options
@@ -87,6 +95,9 @@ export function createGridElement<Row = TestRow>(
       theme={theme}
       getRowStyle={getRowStyle}
       getCellStyle={getCellStyle}
+      onCellPress={onCellPress}
+      onCellLongPress={onCellLongPress}
+      onRowPress={onRowPress}
       rowCount={rowCount}
       getRow={getRow}
       rowHeight={rowHeight}

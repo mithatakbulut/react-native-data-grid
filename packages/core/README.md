@@ -33,6 +33,10 @@ const columns = layout.getVisibleColumns({ scrollX: 0, viewportWidth: 400, overs
 const pinned = layout.getPinnedColumns()
 ```
 
+## Pinned column order
+
+Pinned columns are edge-oriented. Left-pinned columns must be a contiguous prefix and right-pinned columns must be a contiguous suffix: `left-pinned* → unpinned* → right-pinned*`. `createGridLayout()` rejects unsupported arrangements.
+
 ## Exports
 
 - `createGridLayout(options)` — build a `GridLayout` instance

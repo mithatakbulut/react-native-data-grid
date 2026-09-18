@@ -82,12 +82,40 @@ function validateOptions({ rowCount, rowHeight, columns }: GridLayoutOptions): v
   assertPositiveFinite(rowHeight, 'rowHeight')
 
   const ids = new Set<string>()
+  let pinnedSection: 'left' | 'center' | 'right' = 'left'
   for (const column of columns) {
     if (!column.id) throw new RangeError('columns must have a non-empty id')
     if (ids.has(column.id)) throw new RangeError(`duplicate column id: ${column.id}`)
     ids.add(column.id)
     assertPositiveFinite(column.width, `width for column ${column.id}`)
+    pinnedSection = validatePinnedColumnPosition(column, pinnedSection)
   }
+}
+
+function validatePinnedColumnPosition(
+  column: CoreGridColumn,
+  pinnedSection: 'left' | 'center' | 'right'
+): 'left' | 'center' | 'right' {
+  if (column.pinned !== undefined && column.pinned !== 'left' && column.pinned !== 'right')
+    throw new RangeError(`pinned value for column ${column.id} must be "left" or "right"`)
+
+  if (column.pinned === 'left') {
+    if (pinnedSection !== 'left') {
+      throw new RangeError(
+        'Invalid pinned column configuration: left-pinned columns must appear before all unpinned columns and right-pinned columns.'
+      )
+    }
+    return 'left'
+  }
+
+  if (column.pinned === 'right') return 'right'
+
+  if (pinnedSection === 'right') {
+    throw new RangeError(
+      'Invalid pinned column configuration: right-pinned columns must appear after all left-pinned and unpinned columns.'
+    )
+  }
+  return 'center'
 }
 
 function getFixedSizeRange(

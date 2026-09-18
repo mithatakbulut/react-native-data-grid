@@ -60,6 +60,57 @@ describe('createGridLayout', () => {
   })
 
   describe('pinned columns', () => {
+    it('accepts contiguous left and right pinned sections', () => {
+      expect(() =>
+        createGridLayout({
+          rowCount: 1,
+          rowHeight: 48,
+          columns: [
+            { id: 'left', width: 80, pinned: 'left' },
+            { id: 'center', width: 120 },
+            { id: 'right', width: 80, pinned: 'right' }
+          ]
+        })
+      ).not.toThrow()
+
+      expect(() =>
+        createGridLayout({
+          rowCount: 1,
+          rowHeight: 48,
+          columns: [
+            { id: 'left', width: 80, pinned: 'left' },
+            { id: 'right', width: 80, pinned: 'right' }
+          ]
+        })
+      ).not.toThrow()
+    })
+
+    it('rejects a left-pinned column outside the leading pinned section', () => {
+      expect(() =>
+        createGridLayout({
+          rowCount: 1,
+          rowHeight: 48,
+          columns: [
+            { id: 'center', width: 80 },
+            { id: 'left', width: 80, pinned: 'left' }
+          ]
+        })
+      ).toThrow('left-pinned columns must appear before all unpinned columns')
+    })
+
+    it('rejects an unpinned column after the trailing right-pinned section', () => {
+      expect(() =>
+        createGridLayout({
+          rowCount: 1,
+          rowHeight: 48,
+          columns: [
+            { id: 'right', width: 80, pinned: 'right' },
+            { id: 'center', width: 80 }
+          ]
+        })
+      ).toThrow('right-pinned columns must appear after all left-pinned and unpinned columns')
+    })
+
     it('excludes pinned columns from the center cells while retaining the logical range', () => {
       expect(layout().getVisibleColumns({ scrollX: 190, viewportWidth: 160, overscan: 1 })).toEqual(
         {

@@ -136,6 +136,8 @@ ref.current?.resetProfiling()
 
 Pinned columns are excluded from the `columns` range; they are always mounted separately.
 
+Pinned columns are edge-oriented. Declare any left-pinned columns first and any right-pinned columns last: `left-pinned* → unpinned* → right-pinned*`. Unsupported arrangements throw when the grid layout is created.
+
 ## RowVirtualizedDataGrid
 
 Use `RowVirtualizedDataGrid` when you want row virtualization only — every column is mounted for each visible row. Same props and pinned-column behavior as `DataGrid`. Useful as a performance baseline or when column count is small.

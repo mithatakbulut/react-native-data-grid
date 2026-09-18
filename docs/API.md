@@ -36,6 +36,8 @@ Extends `CoreGridColumn` with render callbacks.
 | `header`     | `ReactNode \| (column) => ReactNode` | Header cell content                                       |
 | `renderCell` | `(ctx) => ReactNode`                 | Body cell renderer; `ctx` has `row`, `rowIndex`, `column` |
 
+Pinned columns are edge-oriented: left-pinned columns must form a contiguous prefix and right-pinned columns must form a contiguous suffix. In other words, order columns as left-pinned, then unpinned, then right-pinned. Invalid arrangements throw when the grid layout is created.
+
 #### `DataGridHandle`
 
 | Method                                   | Description                                               |
@@ -67,6 +69,8 @@ Extends `CoreGridColumn` with render callbacks.
 | `rowCount`  | `number`                    | Total rows                          |
 | `rowHeight` | `number`                    | Fixed row height                    |
 | `columns`   | `readonly CoreGridColumn[]` | Column id, width, optional `pinned` |
+
+When using `pinned`, columns must be ordered as a contiguous left-pinned prefix, followed by unpinned columns, followed by a contiguous right-pinned suffix. `createGridLayout()` rejects unsupported arrangements.
 
 #### `GridLayout` methods
 

@@ -66,6 +66,10 @@ export function MyGrid() {
 | `DataGrid`               | Full 2D virtualization (rows + columns)                                          |
 | `RowVirtualizedDataGrid` | Row-only virtualization; mounts all columns per visible row (benchmark baseline) |
 
+## Pinned column order
+
+Pinned columns are edge-oriented. Left-pinned columns must be a contiguous prefix and right-pinned columns must be a contiguous suffix: `left-pinned* → unpinned* → right-pinned*`. Unsupported arrangements throw when the grid layout is created.
+
 ## Imperative API
 
 Pass a ref to access `DataGridHandle`:

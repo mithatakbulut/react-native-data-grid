@@ -2,7 +2,7 @@
 
 React-free TypeScript layout engine for virtualized data grids.
 
-Computes visible row and column windows, overscan, pinned-column offsets, and total grid dimensions for fixed-height rows and known column widths. Intended for custom renderers or headless testing — most apps should use [`@react-native-data-grid/react-native`](../react-native).
+Computes visible row and column windows, overscan, pinned-column offsets, and total grid dimensions for fixed-height rows and known column widths. Intended for custom renderers or headless testing — most apps should use [`@react-native-data-grid/react-native`](https://www.npmjs.com/package/@react-native-data-grid/react-native).
 
 ## Install
 
@@ -44,8 +44,8 @@ Pinned columns are edge-oriented. Left-pinned columns must be a contiguous prefi
 
 `getVisibleRows()` returns a contiguous `ItemRange`: `items` contains every index in `[startIndex, endIndex)`. `getVisibleColumns()` returns a `ColumnRange` with explicit `logicalStartIndex` and `logicalEndIndex`; its `items` contains only unpinned center columns in that logical interval. Pinned columns are returned separately by `getPinnedColumns()`.
 
-See the [API reference](../../docs/API.md#core-package) for details.
+See the [API reference](https://github.com/mithatakbulut/react-native-data-grid/blob/main/docs/API.md#core-package) for details.
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://github.com/mithatakbulut/react-native-data-grid/blob/main/LICENSE)

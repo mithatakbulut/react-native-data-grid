@@ -4,7 +4,7 @@
 [![npm: core](https://img.shields.io/npm/v/@react-native-data-grid/core?label=core)](https://www.npmjs.com/package/@react-native-data-grid/core)
 [![license](https://img.shields.io/npm/l/@react-native-data-grid/react-native)](./LICENSE)
 
-Experimental **0.1.x** release — a React Native data grid with true two-dimensional virtualization and pinned columns.
+Experimental **0.2.x** release — a React Native data grid with true two-dimensional virtualization and pinned columns.
 
 Mounted cells scale with the visible row and column windows, not with every column in each visible row. The API may change before `1.0.0`.
 
@@ -185,7 +185,7 @@ Row ranges use exclusive bounds: `[startIndex, endIndex)` and contain every inde
 
 ## Limitations
 
-Do not expect AG Grid–class features in `0.1.x`:
+Do not expect AG Grid–class features in `0.2.x`:
 
 - **Fixed row height** — all rows share the same `rowHeight`
 - **Known column widths** — widths must be set on each column upfront

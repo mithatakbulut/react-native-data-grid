@@ -120,15 +120,16 @@ ref.current?.scrollToColumn('customer', { align: 'center' })
 ref.current?.getProfilingSnapshot() // dev instrumentation
 ```
 
-## Limitations (0.1.x)
+## Limitations (0.2.x)
 
 - Fixed `rowHeight` for all rows
 - Column widths must be known upfront
 - No sorting, filtering, selection, inline editing, or variable row height
 - No accessibility tree / screen-reader support yet
 
-See the [full documentation](../../README.md) and [API reference](../../docs/API.md).
+See the [full documentation](https://github.com/mithatakbulut/react-native-data-grid#readme) and
+[API reference](https://github.com/mithatakbulut/react-native-data-grid/blob/main/docs/API.md).
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://github.com/mithatakbulut/react-native-data-grid/blob/main/LICENSE)

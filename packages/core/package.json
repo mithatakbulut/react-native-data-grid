@@ -1,6 +1,6 @@
 {
   "name": "@react-native-data-grid/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React-free layout engine for virtualized data grids with fixed row height, known column widths, and pinned columns.",
   "license": "MIT",
   "type": "module",

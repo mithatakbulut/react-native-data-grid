@@ -99,6 +99,14 @@ try {
           devDependencies: {
             '@react-native/metro-config': '0.87.0',
             typescript: '^5.9.3'
+          },
+          // The packed React Native package depends on the exact packed core version, which is
+          // not on the registry yet while a release is being prepared. Resolve it to the local
+          // tarball so the smoke test exercises the artifacts under test, not published ones.
+          pnpm: {
+            overrides: {
+              '@react-native-data-grid/core': `file:${coreTarball}`
+            }
           }
         },
         null,

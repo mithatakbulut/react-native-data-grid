@@ -1,6 +1,6 @@
 {
   "name": "@react-native-data-grid/react-native",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Virtualized 2D data grid for React Native with pinned columns, fixed row height, and imperative scroll API.",
   "license": "MIT",
   "type": "module",

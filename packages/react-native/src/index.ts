@@ -3,6 +3,7 @@ export {
   RowVirtualizedDataGrid,
   type DataGridColumn,
   type DataGridHandle,
+  type DataGridProfilingSnapshot,
   type ColumnScrollAlignment,
   type DataGridCellEvent,
   type DataGridCellStyleContext,

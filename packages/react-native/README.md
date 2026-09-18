@@ -78,7 +78,7 @@ Pass a ref to access `DataGridHandle`:
 const ref = useRef<DataGridHandle>(null)
 
 ref.current?.scrollToRow(500)
-ref.current?.scrollToColumn(12)
+ref.current?.scrollToColumn('customer', { align: 'center' })
 ref.current?.getProfilingSnapshot() // dev instrumentation
 ```
 

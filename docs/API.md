@@ -40,12 +40,23 @@ Pinned columns are edge-oriented: left-pinned columns must form a contiguous pre
 
 #### `DataGridHandle`
 
-| Method                                   | Description                                               |
-| ---------------------------------------- | --------------------------------------------------------- |
-| `scrollToRow(rowIndex, animated?)`       | Scroll vertically so `rowIndex` is in view                |
-| `scrollToColumn(columnIndex, animated?)` | Scroll horizontally so `columnIndex` is in view           |
-| `getProfilingSnapshot()`                 | Returns profiling counters when `enableProfiling` is true |
-| `resetProfiling()`                       | Resets profiling counters                                 |
+| Method                             | Description                                                |
+| ---------------------------------- | ---------------------------------------------------------- |
+| `scrollToRow(rowIndex, animated?)` | Scroll vertically so `rowIndex` is in view                 |
+| `scrollToColumn(column, options?)` | Scrolls an unpinned column into the usable center viewport |
+| `getProfilingSnapshot()`           | Returns profiling counters when `enableProfiling` is true  |
+| `resetProfiling()`                 | Resets profiling counters                                  |
+
+`scrollToColumn` accepts a numeric index or stable column ID. Its options are:
+
+```ts
+{
+  animated?: boolean // defaults to true
+  align?: 'auto' | 'start' | 'center' | 'end' // defaults to 'auto'
+}
+```
+
+`auto` scrolls the minimum distance needed to make a center column fully visible between the left- and right-pinned areas. `start`, `center`, and `end` align the target inside that same center viewport. A target wider than the usable center viewport aligns to `start`. Pinned targets are already visible, so calling this method for one leaves the current horizontal scroll position unchanged.
 
 #### `DataGridProfilingSnapshot`
 

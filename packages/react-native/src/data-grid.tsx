@@ -71,9 +71,18 @@ export type DataGridProfilingSnapshot = {
   readonly rangeChanges: number
 }
 
+export type ColumnScrollAlignment = 'auto' | 'start' | 'center' | 'end'
+
+export type ScrollToColumnOptions = {
+  /** Defaults to true. */
+  readonly animated?: boolean
+  /** Defaults to `auto`, which scrolls only enough to reveal the complete target in the center viewport. */
+  readonly align?: ColumnScrollAlignment
+}
+
 export type DataGridHandle = {
   scrollToRow(rowIndex: number, animated?: boolean): void
-  scrollToColumn(columnIndex: number, animated?: boolean): void
+  scrollToColumn(column: number | string, options?: ScrollToColumnOptions): void
   getProfilingSnapshot(): DataGridProfilingSnapshot
   resetProfiling(): void
 }
@@ -112,6 +121,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
   const verticalScrollRef = useRef<ScrollView>(null)
   const scrollX = useRef(new Animated.Value(0)).current
   const scrollOffsets = useRef({ x: 0, y: 0 })
+  const pinnedColumns = layout.getPinnedColumns()
   const [viewport, setViewport] = useState<ViewportSize>({ width: 0, height: 0 })
   const [window, setWindow] = useState<RenderWindow>(() => emptyWindow())
   const windowRef = useRef(window)
@@ -210,15 +220,36 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
     () => ({
       scrollToRow: (rowIndex, animated = true) =>
         verticalScrollRef.current?.scrollTo({ y: layout.getRowOffset(rowIndex), animated }),
-      scrollToColumn: (columnIndex, animated = true) =>
-        horizontalScrollRef.current?.scrollTo({ x: layout.getColumnOffset(columnIndex), animated }),
+      scrollToColumn: (column, options = {}) => {
+        const columnIndex = resolveColumnIndex(columns, column)
+        const pinned = pinnedColumns.some((candidate) => candidate.index === columnIndex)
+        if (pinned) return
+
+        const alignment = options.align ?? 'auto'
+        const targetOffset = layout.getColumnOffset(columnIndex)
+        const targetWidth = columns[columnIndex]!.width
+        const x = getColumnScrollOffset({
+          alignment,
+          currentScrollX: scrollOffsets.current.x,
+          targetOffset,
+          targetWidth,
+          viewportWidth: viewport.width,
+          contentWidth: totalSize.width,
+          pinnedColumns
+        })
+        if (
+          alignment === 'auto' &&
+          x === clampScrollOffset(scrollOffsets.current.x, totalSize.width, viewport.width)
+        )
+          return
+        horizontalScrollRef.current?.scrollTo({ x, animated: options.animated ?? true })
+      },
       getProfilingSnapshot: () => profiling.getSnapshot(),
       resetProfiling: () => profiling.reset()
     }),
-    [layout, profiling]
+    [columns, layout, pinnedColumns, profiling, totalSize.width, viewport.width]
   )
 
-  const pinnedColumns = layout.getPinnedColumns()
   return (
     <Profiler
       id={virtualizeColumns ? 'DataGrid' : 'RowVirtualizedDataGrid'}
@@ -575,6 +606,87 @@ function emptyWindow(): RenderWindow {
     columns: { startIndex: 0, endIndex: 0, items: [] }
   }
 }
+
+type ColumnScrollOffsetInput = {
+  readonly alignment: ColumnScrollAlignment
+  readonly currentScrollX: number
+  readonly targetOffset: number
+  readonly targetWidth: number
+  readonly viewportWidth: number
+  readonly contentWidth: number
+  readonly pinnedColumns: readonly PinnedColumn[]
+}
+
+function getColumnScrollOffset({
+  alignment,
+  currentScrollX,
+  targetOffset,
+  targetWidth,
+  viewportWidth,
+  contentWidth,
+  pinnedColumns
+}: ColumnScrollOffsetInput): number {
+  if (
+    alignment !== 'auto' &&
+    alignment !== 'start' &&
+    alignment !== 'center' &&
+    alignment !== 'end'
+  )
+    throw new RangeError(
+      `align must be "auto", "start", "center", or "end"; received ${String(alignment)}`
+    )
+
+  const leftPinnedWidth = pinnedColumns
+    .filter((column) => column.pinned === 'left')
+    .reduce((width, column) => width + column.size, 0)
+  const rightPinnedWidth = pinnedColumns
+    .filter((column) => column.pinned === 'right')
+    .reduce((width, column) => width + column.size, 0)
+  const centerStart = leftPinnedWidth
+  const centerEnd = Math.max(centerStart, viewportWidth - rightPinnedWidth)
+  const centerWidth = centerEnd - centerStart
+  const targetEnd = targetOffset + targetWidth
+
+  let desiredOffset: number
+  if (
+    alignment === 'start' ||
+    centerWidth === 0 ||
+    (alignment === 'auto' && targetWidth > centerWidth)
+  ) {
+    desiredOffset = targetOffset - centerStart
+  } else if (alignment === 'center') {
+    desiredOffset = targetOffset + targetWidth / 2 - (centerStart + centerEnd) / 2
+  } else if (alignment === 'end') {
+    desiredOffset = targetEnd - centerEnd
+  } else {
+    const targetLeft = targetOffset - currentScrollX
+    const targetRight = targetEnd - currentScrollX
+    if (targetLeft < centerStart) desiredOffset = targetOffset - centerStart
+    else if (targetRight > centerEnd) desiredOffset = targetEnd - centerEnd
+    else desiredOffset = currentScrollX
+  }
+
+  return clampScrollOffset(desiredOffset, contentWidth, viewportWidth)
+}
+
+function resolveColumnIndex<Row>(
+  columns: readonly DataGridColumn<Row>[],
+  column: number | string
+): number {
+  if (typeof column === 'number') {
+    if (!Number.isInteger(column) || column < 0 || column >= columns.length)
+      throw new RangeError(`column index must be an integer between 0 and ${columns.length - 1}`)
+    return column
+  }
+  const index = columns.findIndex((candidate) => candidate.id === column)
+  if (index === -1) throw new RangeError(`unknown column id: ${column}`)
+  return index
+}
+
+function clampScrollOffset(offset: number, contentWidth: number, viewportWidth: number): number {
+  return Math.max(0, Math.min(offset, Math.max(0, contentWidth - viewportWidth)))
+}
+
 function sameRange(a: ItemRange, b: ItemRange): boolean {
   return (
     a.startIndex === b.startIndex &&

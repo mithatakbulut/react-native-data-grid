@@ -94,7 +94,7 @@ You do not need to allocate an array of 100,000 rows — provide a `getRow` acce
 **`@react-native-data-grid/react-native`**
 
 - `DataGrid`, `RowVirtualizedDataGrid`
-- `DataGridColumn`, `DataGridProps`, `DataGridHandle`, `DataGridProfilingSnapshot`
+- `ColumnScrollAlignment`, `DataGridColumn`, `DataGridProps`, `DataGridHandle`, `DataGridProfilingSnapshot`, `ScrollToColumnOptions`
 
 **`@react-native-data-grid/core`**
 
@@ -115,7 +115,7 @@ const ref = useRef<DataGridHandle>(null)
 
 // Later:
 ref.current?.scrollToRow(500, true)
-ref.current?.scrollToColumn(12, false)
+ref.current?.scrollToColumn('region', { align: 'center', animated: false })
 ref.current?.getProfilingSnapshot() // when enableProfiling is true
 ref.current?.resetProfiling()
 ```
@@ -137,6 +137,8 @@ ref.current?.resetProfiling()
 Pinned columns are excluded from the `columns` range; they are always mounted separately.
 
 Pinned columns are edge-oriented. Declare any left-pinned columns first and any right-pinned columns last: `left-pinned* → unpinned* → right-pinned*`. Unsupported arrangements throw when the grid layout is created.
+
+`scrollToColumn` accepts a column index or stable ID. Its default `align: 'auto'` makes the target fully visible in the unpinned center viewport; use `start`, `center`, or `end` for explicit placement. Pinned targets are already visible and do not change the horizontal scroll position.
 
 ## RowVirtualizedDataGrid
 

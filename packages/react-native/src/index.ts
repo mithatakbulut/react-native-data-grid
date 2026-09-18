@@ -3,5 +3,7 @@ export {
   RowVirtualizedDataGrid,
   type DataGridColumn,
   type DataGridHandle,
-  type DataGridProps
+  type ColumnScrollAlignment,
+  type DataGridProps,
+  type ScrollToColumnOptions
 } from './data-grid.js'

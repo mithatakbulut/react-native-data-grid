@@ -39,16 +39,68 @@ describe('DataGrid window behaviour', () => {
       expect(verticalScrollTo).toHaveBeenCalledWith({ y: 0, animated: false })
     })
 
-    it('scrollToColumn delegates to the horizontal scroller with the layout column offset', () => {
+    it('does not scroll an unpinned column that is already fully visible', () => {
       const gridRef = { current: null as DataGridHandle | null }
       const grid = renderGrid({ gridRef, columns: basicColumns })
       layoutGrid(grid, { width: 400, height: 200 })
 
       act(() => gridRef.current?.scrollToColumn(2))
-      expect(horizontalScrollTo).toHaveBeenCalledWith({ x: 200, animated: true })
+      expect(horizontalScrollTo).not.toHaveBeenCalled()
 
-      act(() => gridRef.current?.scrollToColumn(0, false))
+      act(() => gridRef.current?.scrollToColumn(0, { animated: false, align: 'start' }))
       expect(horizontalScrollTo).toHaveBeenCalledWith({ x: 0, animated: false })
+    })
+
+    it('accounts for multiple pinned columns and deterministically aligns center targets', () => {
+      const columns = [
+        { id: 'left-a', width: 50, pinned: 'left' as const, renderCell: () => null },
+        { id: 'left-b', width: 70, pinned: 'left' as const, renderCell: () => null },
+        { id: 'first', width: 100, renderCell: () => null },
+        { id: 'target', width: 120, renderCell: () => null },
+        { id: 'last', width: 110, renderCell: () => null },
+        { id: 'right-a', width: 40, pinned: 'right' as const, renderCell: () => null },
+        { id: 'right-b', width: 30, pinned: 'right' as const, renderCell: () => null }
+      ]
+      const gridRef = { current: null as DataGridHandle | null }
+      const grid = renderGrid({ gridRef, columns })
+      layoutGrid(grid, { width: 400, height: 200 })
+
+      act(() => gridRef.current?.scrollToColumn('target', { align: 'start' }))
+      expect(horizontalScrollTo).toHaveBeenLastCalledWith({ x: 100, animated: true })
+
+      act(() => gridRef.current?.scrollToColumn(3, { align: 'center', animated: false }))
+      expect(horizontalScrollTo).toHaveBeenLastCalledWith({ x: 55, animated: false })
+
+      act(() => gridRef.current?.scrollToColumn(3, { align: 'end' }))
+      expect(horizontalScrollTo).toHaveBeenLastCalledWith({ x: 10, animated: true })
+
+      act(() => gridRef.current?.scrollToColumn(3))
+      expect(horizontalScrollTo).toHaveBeenLastCalledWith({ x: 10, animated: true })
+    })
+
+    it('uses auto alignment to reveal a target without moving an already visible center column', () => {
+      const gridRef = { current: null as DataGridHandle | null }
+      const grid = renderGrid({ gridRef, columns: pinnedColumns })
+      layoutGrid(grid, { width: 600, height: 200 })
+      horizontalScrollTo.mockClear()
+
+      scrollHorizontal(grid, 100)
+      act(() => gridRef.current?.scrollToColumn('revenue'))
+      expect(horizontalScrollTo).not.toHaveBeenCalled()
+
+      act(() => gridRef.current?.scrollToColumn('region'))
+      expect(horizontalScrollTo).toHaveBeenCalledWith({ x: 0, animated: true })
+    })
+
+    it('does not scroll for pinned targets', () => {
+      const gridRef = { current: null as DataGridHandle | null }
+      const grid = renderGrid({ gridRef, columns: pinnedColumns })
+      layoutGrid(grid, { width: 600, height: 200 })
+      horizontalScrollTo.mockClear()
+
+      act(() => gridRef.current?.scrollToColumn('id', { align: 'end' }))
+      act(() => gridRef.current?.scrollToColumn(5))
+      expect(horizontalScrollTo).not.toHaveBeenCalled()
     })
 
     it('includes the target row in the visible window after the corresponding vertical scroll event', () => {
@@ -322,8 +374,8 @@ describe('DataGrid window behaviour', () => {
       layoutGrid(grid, { width: 400, height: 200 })
 
       const newlyPinnedColumns = [
-        basicColumns[0]!,
-        { ...basicColumns[1]!, pinned: 'left' },
+        { ...basicColumns[0]!, pinned: 'left' as const },
+        { ...basicColumns[1]!, pinned: 'left' as const },
         basicColumns[2]!
       ]
       act(() => {

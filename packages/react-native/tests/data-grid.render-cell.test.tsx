@@ -218,6 +218,34 @@ describe('DataGrid custom cell rendering', () => {
     expect(findHeaderText(grid, 'custom-header')).toHaveLength(1)
   })
 
+  it('does not rerun header renderers when only the vertical row window changes', () => {
+    const renderHeader = vi.fn((column: DataGridColumn<{ id: number }>) => `header-${column.id}`)
+    const columns: readonly DataGridColumn<{ id: number }>[] = [
+      {
+        id: 'left',
+        width: 80,
+        pinned: 'left',
+        header: renderHeader,
+        renderCell: ({ row }) => `left-${row.id}`
+      },
+      {
+        id: 'center',
+        width: 120,
+        header: renderHeader,
+        renderCell: ({ row }) => `center-${row.id}`
+      }
+    ]
+    const grid = renderGrid({ columns, rowOverscan: 0, columnOverscan: 0 })
+    layoutGrid(grid, { width: 400, height: 140 })
+    expect(renderHeader).toHaveBeenCalled()
+
+    renderHeader.mockClear()
+    scrollVertical(grid, 48)
+    scrollVertical(grid, 96)
+
+    expect(renderHeader).not.toHaveBeenCalled()
+  })
+
   it('applies static theme styles and contextual body row and cell styles', () => {
     const theme = {
       root: { backgroundColor: 'theme-root' },

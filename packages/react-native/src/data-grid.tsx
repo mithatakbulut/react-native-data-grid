@@ -460,7 +460,7 @@ type HeaderProps<Row> = {
   theme?: DataGridTheme
   testID?: string
 }
-function GridHeader<Row>({
+const GridHeader = memo(function GridHeader<Row>({
   columns,
   centerColumns,
   pinnedColumns,
@@ -504,7 +504,7 @@ function GridHeader<Row>({
       ))}
     </View>
   )
-}
+}) as <Row>(props: HeaderProps<Row>) => ReactNode
 
 type RowProps<Row> = {
   rowIndex: number

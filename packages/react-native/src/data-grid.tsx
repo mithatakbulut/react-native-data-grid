@@ -26,6 +26,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
+  type TextStyle,
   type ViewStyle
 } from 'react-native'
 
@@ -38,6 +39,26 @@ export type DataGridColumn<Row> = CoreGridColumn & {
   }) => ReactNode
 }
 
+/** Static styles applied to the grid's structural surfaces. */
+export type DataGridTheme = {
+  readonly root?: StyleProp<ViewStyle>
+  readonly header?: StyleProp<ViewStyle>
+  readonly headerCell?: StyleProp<ViewStyle>
+  readonly cell?: StyleProp<ViewStyle>
+  readonly pinnedCell?: StyleProp<ViewStyle>
+  readonly headerText?: StyleProp<TextStyle>
+}
+
+export type DataGridRowStyleContext<Row> = {
+  readonly row: Row
+  readonly rowIndex: number
+}
+
+export type DataGridCellStyleContext<Row> = DataGridRowStyleContext<Row> & {
+  readonly column: DataGridColumn<Row>
+  readonly columnIndex: number
+}
+
 export type DataGridProps<Row> = {
   readonly rowCount: number
   readonly getRow: (rowIndex: number) => Row
@@ -47,6 +68,12 @@ export type DataGridProps<Row> = {
   readonly columnOverscan?: number
   readonly headerHeight?: number
   readonly style?: StyleProp<ViewStyle>
+  /** Static styles for the grid's structural surfaces. */
+  readonly theme?: DataGridTheme
+  /** Resolves an additional body-row style for each mounted row. */
+  readonly getRowStyle?: (context: DataGridRowStyleContext<Row>) => StyleProp<ViewStyle>
+  /** Resolves an additional body-cell style for each mounted cell. */
+  readonly getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
   /** Optional native test identifier. Child scroll surfaces and pinned cells derive stable suffixes. */
   readonly testID?: string
   readonly onVisibleRangeChange?: (range: {
@@ -107,6 +134,9 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
     columnOverscan = 1,
     headerHeight = 44,
     style,
+    theme,
+    getRowStyle,
+    getCellStyle,
     testID,
     onVisibleRangeChange,
     enableProfiling = false,
@@ -269,7 +299,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
       id={virtualizeColumns ? 'DataGrid' : 'RowVirtualizedDataGrid'}
       onRender={(_, phase, actualDuration) => profiling.recordCommit(phase, actualDuration)}
     >
-      <View testID={testID} onLayout={onLayout} style={[styles.root, style]}>
+      <View testID={testID} onLayout={onLayout} style={[styles.root, theme?.root, style]}>
         <Animated.ScrollView
           ref={horizontalScrollRef}
           testID={testID ? `${testID}-horizontal-scroll` : undefined}
@@ -294,6 +324,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
               viewportWidth={viewport.width}
               scrollX={scrollX}
               height={headerHeight}
+              theme={theme}
               testID={testID}
             />
             <ScrollView
@@ -314,11 +345,14 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
                   top={row.offset}
                   height={row.size}
                   getRow={getRow}
+                  getRowStyle={getRowStyle}
+                  getCellStyle={getCellStyle}
                   columns={columns}
                   centerColumns={window.columns}
                   pinnedColumns={pinnedColumns}
                   viewportWidth={viewport.width}
                   scrollX={scrollX}
+                  theme={theme}
                   profiling={profiling}
                   testID={testID}
                 />
@@ -362,6 +396,7 @@ type HeaderProps<Row> = {
   viewportWidth: number
   scrollX: Animated.Value
   height: number
+  theme?: DataGridTheme
   testID?: string
 }
 function GridHeader<Row>({
@@ -371,10 +406,11 @@ function GridHeader<Row>({
   viewportWidth,
   scrollX,
   height,
+  theme,
   testID
 }: HeaderProps<Row>) {
   return (
-    <View style={[styles.header, { height }]}>
+    <View style={[styles.header, theme?.header, { height }]}>
       {centerColumns.items.map((item) => {
         const column = columns[item.index]
         if (!column) return null
@@ -385,8 +421,9 @@ function GridHeader<Row>({
             width={item.size}
             height={height}
             variant="header"
+            theme={theme}
           >
-            {renderHeader(column)}
+            {renderHeader(column, theme)}
           </CellFrame>
         )
       })}
@@ -398,9 +435,10 @@ function GridHeader<Row>({
           scrollX={scrollX}
           height={height}
           variant="header"
+          theme={theme}
           testID={testID ? `${testID}-pinned-header-${column.id}` : undefined}
         >
-          {renderHeader(columns[column.index]!)}
+          {renderHeader(columns[column.index]!, theme)}
         </PinnedFrame>
       ))}
     </View>
@@ -412,11 +450,14 @@ type RowProps<Row> = {
   top: number
   height: number
   getRow: (index: number) => Row
+  getRowStyle?: (context: DataGridRowStyleContext<Row>) => StyleProp<ViewStyle>
+  getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
   columns: readonly DataGridColumn<Row>[]
   centerColumns: ItemRange
   pinnedColumns: readonly PinnedColumn[]
   viewportWidth: number
   scrollX: Animated.Value
+  theme?: DataGridTheme
   profiling: GridProfilingRecorder
   testID?: string
 }
@@ -425,11 +466,14 @@ const GridRow = memo(function GridRow<Row>({
   top,
   height,
   getRow,
+  getRowStyle,
+  getCellStyle,
   columns,
   centerColumns,
   pinnedColumns,
   viewportWidth,
   scrollX,
+  theme,
   profiling,
   testID
 }: RowProps<Row>) {
@@ -439,8 +483,9 @@ const GridRow = memo(function GridRow<Row>({
     return () => profiling.recordRowUnmount()
   }, [profiling])
   const row = getRow(rowIndex)
+  const rowStyle = getRowStyle?.({ row, rowIndex })
   return (
-    <View style={[styles.row, { top, height }]}>
+    <View style={[styles.row, rowStyle, { top, height }]}>
       {centerColumns.items.map((item) => {
         const column = columns[item.index]
         if (!column) return null
@@ -450,9 +495,12 @@ const GridRow = memo(function GridRow<Row>({
             rowIndex={rowIndex}
             row={row}
             column={column}
+            columnIndex={item.index}
             left={item.offset}
             width={item.size}
             height={height}
+            getCellStyle={getCellStyle}
+            theme={theme}
             profiling={profiling}
           />
         )
@@ -469,6 +517,8 @@ const GridRow = memo(function GridRow<Row>({
             viewportWidth={viewportWidth}
             scrollX={scrollX}
             height={height}
+            getCellStyle={getCellStyle}
+            theme={theme}
             profiling={profiling}
             testID={testID ? `${testID}-pinned-cell-${rowIndex}-${column.id}` : undefined}
           />
@@ -482,18 +532,24 @@ type GridCellProps<Row> = {
   rowIndex: number
   row: Row
   column: DataGridColumn<Row>
+  columnIndex: number
   left: number
   width: number
   height: number
+  getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  theme?: DataGridTheme
   profiling: GridProfilingRecorder
 }
 const GridCell = memo(function GridCell<Row>({
   rowIndex,
   row,
   column,
+  columnIndex,
   left,
   width,
   height,
+  getCellStyle,
+  theme,
   profiling
 }: GridCellProps<Row>) {
   profiling.recordCellRender()
@@ -501,8 +557,9 @@ const GridCell = memo(function GridCell<Row>({
     profiling.recordCellMount()
     return () => profiling.recordCellUnmount()
   }, [profiling])
+  const cellStyle = getCellStyle?.({ row, rowIndex, column, columnIndex })
   return (
-    <CellFrame left={left} width={width} height={height}>
+    <CellFrame left={left} width={width} height={height} style={cellStyle} theme={theme}>
       {column.renderCell({ row, rowIndex, column })}
     </CellFrame>
   )
@@ -516,6 +573,8 @@ type GridPinnedCellProps<Row> = {
   viewportWidth: number
   scrollX: Animated.Value
   height: number
+  getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
+  theme?: DataGridTheme
   profiling: GridProfilingRecorder
   testID?: string
 }
@@ -527,6 +586,8 @@ const GridPinnedCell = memo(function GridPinnedCell<Row>({
   viewportWidth,
   scrollX,
   height,
+  getCellStyle,
+  theme,
   profiling,
   testID
 }: GridPinnedCellProps<Row>) {
@@ -535,12 +596,20 @@ const GridPinnedCell = memo(function GridPinnedCell<Row>({
     profiling.recordCellMount()
     return () => profiling.recordCellUnmount()
   }, [profiling])
+  const cellStyle = getCellStyle?.({
+    row,
+    rowIndex,
+    column: definition,
+    columnIndex: column.index
+  })
   return (
     <PinnedFrame
       column={column}
       viewportWidth={viewportWidth}
       scrollX={scrollX}
       height={height}
+      style={cellStyle}
+      theme={theme}
       testID={testID}
     >
       {definition.renderCell({ row, rowIndex, column: definition })}
@@ -553,11 +622,22 @@ type FrameProps = {
   width: number
   height: number
   variant?: 'header'
+  style?: StyleProp<ViewStyle>
+  theme?: DataGridTheme
   children: ReactNode
 }
-function CellFrame({ left, width, height, variant, children }: FrameProps) {
+function CellFrame({ left, width, height, variant, style, theme, children }: FrameProps) {
   return (
-    <View style={[styles.cell, variant === 'header' && styles.headerCell, { left, width, height }]}>
+    <View
+      style={[
+        styles.cell,
+        theme?.cell,
+        variant === 'header' && styles.headerCell,
+        variant === 'header' && theme?.headerCell,
+        style,
+        { left, width, height }
+      ]}
+    >
       {children}
     </View>
   )
@@ -575,6 +655,8 @@ function PinnedFrame({
   scrollX,
   height,
   variant,
+  style,
+  theme,
   children,
   testID
 }: PinnedFrameProps) {
@@ -588,8 +670,12 @@ function PinnedFrame({
       testID={testID}
       style={[
         styles.cell,
+        theme?.cell,
         styles.pinnedCell,
+        theme?.pinnedCell,
         variant === 'header' && styles.headerCell,
+        variant === 'header' && theme?.headerCell,
+        style,
         {
           left: column.offset,
           width: column.size,
@@ -603,11 +689,11 @@ function PinnedFrame({
   )
 }
 
-function renderHeader<Row>(column: DataGridColumn<Row>): ReactNode {
+function renderHeader<Row>(column: DataGridColumn<Row>, theme?: DataGridTheme): ReactNode {
   if (typeof column.header === 'function') return column.header(column)
   const header = column.header ?? column.id
   return typeof header === 'string' || typeof header === 'number' ? (
-    <Text style={styles.headerText}>{header}</Text>
+    <Text style={[styles.headerText, theme?.headerText]}>{header}</Text>
   ) : (
     header
   )

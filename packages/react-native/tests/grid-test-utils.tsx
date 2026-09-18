@@ -11,6 +11,12 @@ import {
   type DataGridColumn,
   type DataGridHandle
 } from '../src/index.js'
+import type {
+  DataGridCellStyleContext,
+  DataGridRowStyleContext,
+  DataGridTheme
+} from '../src/index.js'
+import type { StyleProp, ViewStyle } from 'react-native'
 import type { TestAnimatedSum } from './test-animated-value.js'
 
 export type TestRow = { readonly id: number }
@@ -40,6 +46,9 @@ export type RenderGridOptions<Row = TestRow> = {
   readonly rowOverscan?: number
   readonly columnOverscan?: number
   readonly enableProfiling?: boolean
+  readonly theme?: DataGridTheme
+  readonly getRowStyle?: (context: DataGridRowStyleContext<Row>) => StyleProp<ViewStyle>
+  readonly getCellStyle?: (context: DataGridCellStyleContext<Row>) => StyleProp<ViewStyle>
   readonly gridRef?: { readonly current: DataGridHandle | null }
   readonly onVisibleRangeChange?: (range: {
     readonly rows: { readonly startIndex: number; readonly endIndex: number }
@@ -64,6 +73,9 @@ export function createGridElement<Row = TestRow>(
     rowOverscan = 3,
     columnOverscan = 1,
     enableProfiling = false,
+    theme,
+    getRowStyle,
+    getCellStyle,
     gridRef,
     onVisibleRangeChange
   } = options
@@ -72,6 +84,9 @@ export function createGridElement<Row = TestRow>(
       ref={gridRef ?? undefined}
       testID="grid"
       enableProfiling={enableProfiling}
+      theme={theme}
+      getRowStyle={getRowStyle}
+      getCellStyle={getCellStyle}
       rowCount={rowCount}
       getRow={getRow}
       rowHeight={rowHeight}

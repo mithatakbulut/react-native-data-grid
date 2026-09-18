@@ -7,7 +7,9 @@ import './react-native-test-mock.js'
 import { Image, Text, View } from 'react-native'
 import {
   findBodyCellContent,
+  findBodyCellFrame,
   findHeaderText,
+  findRenderedNode,
   layoutGrid,
   renderGrid,
   scrollVertical
@@ -214,5 +216,109 @@ describe('DataGrid custom cell rendering', () => {
     expect(findHeaderText(grid, 'Alpha')).toHaveLength(1)
     expect(findHeaderText(grid, 'Fn-b')).toHaveLength(1)
     expect(findHeaderText(grid, 'custom-header')).toHaveLength(1)
+  })
+
+  it('applies static theme styles and contextual body row and cell styles', () => {
+    const theme = {
+      root: { backgroundColor: 'theme-root' },
+      header: { backgroundColor: 'theme-header' },
+      headerCell: { backgroundColor: 'theme-header-cell' },
+      cell: { borderColor: 'theme-cell' },
+      pinnedCell: { borderRightWidth: 3 },
+      headerText: { color: 'theme-header-text' }
+    }
+    const getRowStyle = vi.fn(() => ({ backgroundColor: 'row-status' }))
+    const getCellStyle = vi.fn(({ columnIndex }: { readonly columnIndex: number }) => ({
+      opacity: columnIndex + 1
+    }))
+    const columns: readonly DataGridColumn<{ id: number }>[] = [
+      {
+        id: 'left',
+        width: 80,
+        pinned: 'left',
+        header: 'Left',
+        renderCell: ({ row }) => `left-${row.id}`
+      },
+      {
+        id: 'center',
+        width: 120,
+        header: 'Center',
+        renderCell: ({ row }) => `center-${row.id}`
+      }
+    ]
+    const grid = renderGrid({
+      rowCount: 1,
+      rowOverscan: 0,
+      columnOverscan: 0,
+      columns,
+      theme,
+      getRowStyle,
+      getCellStyle
+    })
+    layoutGrid(grid, { width: 400, height: 200 })
+
+    const root = grid.root.find((node) => node.type === 'View' && node.props.testID === 'grid')
+    const centerFrame = findBodyCellFrame(grid, 'center-0')
+    const row = grid.root.find(
+      (node) =>
+        node.type === 'View' &&
+        Array.isArray(node.props.style) &&
+        node.props.style.some(
+          (style) =>
+            typeof style === 'object' &&
+            style !== null &&
+            'backgroundColor' in style &&
+            style.backgroundColor === 'row-status'
+        )
+    )
+    const pinnedFrame = findRenderedNode(grid, 'grid-pinned-cell-0-left')
+    const centerHeaderFrame = grid.root.find(
+      (node) =>
+        node.type === 'View' &&
+        Array.isArray(node.props.style) &&
+        node.props.style.some(
+          (style) =>
+            typeof style === 'object' &&
+            style !== null &&
+            'backgroundColor' in style &&
+            style.backgroundColor === 'theme-header-cell'
+        )
+    )
+    const header = grid.root.find(
+      (node) =>
+        node.type === 'View' &&
+        Array.isArray(node.props.style) &&
+        node.props.style.some(
+          (style) =>
+            typeof style === 'object' &&
+            style !== null &&
+            'backgroundColor' in style &&
+            style.backgroundColor === 'theme-header'
+        )
+    )
+    const headerText = findHeaderText(grid, 'Center')[0]!
+
+    expect(root.props.style).toContainEqual(theme.root)
+    expect(row.props.style).toContainEqual({ backgroundColor: 'row-status' })
+    expect(centerFrame.props.style).toContainEqual(theme.cell)
+    expect(centerFrame.props.style).toContainEqual({ opacity: 2 })
+    expect(pinnedFrame.props.style).toContainEqual(theme.pinnedCell)
+    expect(pinnedFrame.props.style).toContainEqual({ opacity: 1 })
+    expect(header.props.style).toContainEqual(theme.header)
+    expect(centerHeaderFrame.props.style).toContainEqual(theme.headerCell)
+    expect(headerText.props.style).toContainEqual(theme.headerText)
+    expect(getRowStyle).toHaveBeenCalledWith({ row: { id: 0 }, rowIndex: 0 })
+    expect(getCellStyle).toHaveBeenCalledWith({
+      row: { id: 0 },
+      rowIndex: 0,
+      column: columns[0],
+      columnIndex: 0
+    })
+    expect(getCellStyle).toHaveBeenCalledWith({
+      row: { id: 0 },
+      rowIndex: 0,
+      column: columns[1],
+      columnIndex: 1
+    })
   })
 })

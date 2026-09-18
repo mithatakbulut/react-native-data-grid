@@ -70,6 +70,31 @@ export function MyGrid() {
 
 Pinned columns are edge-oriented. Left-pinned columns must be a contiguous prefix and right-pinned columns must be a contiguous suffix: `left-pinned* → unpinned* → right-pinned*`. Unsupported arrangements throw when the grid layout is created.
 
+## Styling
+
+Use the small `theme` object for static visual treatment and the optional style resolvers for row- or cell-specific presentation:
+
+```tsx
+import type { DataGridTheme } from '@react-native-data-grid/react-native'
+
+const theme: DataGridTheme = {
+  root: { backgroundColor: '#111827' },
+  header: { backgroundColor: '#1f2937', borderBottomWidth: 0 },
+  headerCell: { backgroundColor: '#1f2937' },
+  cell: { backgroundColor: '#111827', borderRightWidth: 0, borderBottomWidth: 0, paddingHorizontal: 8 },
+  pinnedCell: { borderRightWidth: 2, borderColor: '#38bdf8', shadowOpacity: 0 },
+  headerText: { color: '#f9fafb', textTransform: 'none' }
+}
+
+<DataGrid
+  {...props}
+  theme={theme}
+  getRowStyle={({ row }) => (row.id % 2 ? { backgroundColor: '#1f2937' } : undefined)}
+/>
+```
+
+`getRowStyle` and `getCellStyle` run for every mounted row or cell, so keep them inexpensive; use `theme` for static styles. The grid retains control of positional geometry.
+
 ## Imperative API
 
 Pass a ref to access `DataGridHandle`:

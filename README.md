@@ -1,5 +1,9 @@
 # React Native Data Grid
 
+[![npm: react-native](https://img.shields.io/npm/v/@react-native-data-grid/react-native?label=react-native)](https://www.npmjs.com/package/@react-native-data-grid/react-native)
+[![npm: core](https://img.shields.io/npm/v/@react-native-data-grid/core?label=core)](https://www.npmjs.com/package/@react-native-data-grid/core)
+[![license](https://img.shields.io/npm/l/@react-native-data-grid/react-native)](./LICENSE)
+
 Experimental **0.1.x** release — a React Native data grid with true two-dimensional virtualization and pinned columns.
 
 Mounted cells scale with the visible row and column windows, not with every column in each visible row. The API may change before `1.0.0`.

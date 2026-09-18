@@ -31,7 +31,7 @@ Both components accept the same props. `DataGrid` virtualizes rows and columns; 
 | `onRenderRangeChange`  | `(range) => void`                   | —       | Called when the overscanned mounted row/center-column window changes     |
 | `enableProfiling`      | `boolean`                           | `false` | Dev-only React Profiler counters; disable for benchmarks                 |
 
-Both range callbacks receive `{ rows: ItemRange, columns: ColumnRange }`. `rows.items` is contiguous across `[startIndex, endIndex)`. `columns.items` contains only unpinned center columns in `[logicalStartIndex, logicalEndIndex)`; pinned columns are omitted and available through `getPinnedColumns()`.
+Both range callbacks receive `{ rows: ItemRange, columns: ColumnRange }`. `onVisibleRangeChange` measures columns against the center band (`viewportWidth` minus the pinned overlay widths), so columns covered by a pinned column are excluded; `onRenderRangeChange` reports the wider mounted window measured against the full viewport. `rows.items` is contiguous across `[startIndex, endIndex)`. `columns.items` contains only unpinned center columns in `[logicalStartIndex, logicalEndIndex)`; pinned columns are omitted and available through `getPinnedColumns()`.
 
 #### Styling
 

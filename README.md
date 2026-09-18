@@ -146,7 +146,7 @@ ref.current?.resetProfiling()
 />
 ```
 
-`onVisibleRangeChange` fires when the row or center-column window intersecting the viewport changes. It never includes overscan:
+`onVisibleRangeChange` fires when the row or center-column window intersecting the viewport changes. It never includes overscan, and the column window is measured against the band between the pinned overlays, so a center column hidden behind a pinned column is not reported as visible:
 
 ```tsx
 <DataGrid

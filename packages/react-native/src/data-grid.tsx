@@ -90,7 +90,11 @@ export type DataGridProps<Row> = {
   readonly onRowPress?: (event: DataGridRowEvent<Row>) => void
   /** Optional native test identifier. Child scroll surfaces and pinned cells derive stable suffixes. */
   readonly testID?: string
-  /** Called when the non-overscanned row or center-column window changes. */
+  /**
+   * Called when the non-overscanned row or center-column window changes. Columns are measured
+   * against the band between the pinned overlays, so columns hidden behind a pinned column are
+   * excluded.
+   */
   readonly onVisibleRangeChange?: (range: {
     readonly rows: ItemRange
     readonly columns: ColumnRange
@@ -176,6 +180,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
   const scrollX = useRef(new Animated.Value(0)).current
   const scrollOffsets = useRef({ x: 0, y: 0 })
   const pinnedColumns = layout.getPinnedColumns()
+  const pinnedWidths = useMemo(() => getPinnedWidths(pinnedColumns), [pinnedColumns])
   const [viewport, setViewport] = useState<ViewportSize>({ width: 0, height: 0 })
   const [window, setWindow] = useState<RenderWindow>(() => emptyWindow())
   const windowRef = useRef(window)
@@ -220,8 +225,10 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
           overscan: 0
         }),
         columns: layout.getVisibleColumns({
-          scrollX: scrollOffsetX,
-          viewportWidth: nextViewport.width,
+          // Pinned columns overlay the viewport edges, so the center columns a user can
+          // actually see span only the gap between them.
+          scrollX: scrollOffsetX + pinnedWidths.left,
+          viewportWidth: Math.max(0, nextViewport.width - pinnedWidths.left - pinnedWidths.right),
           overscan: 0
         })
       }
@@ -268,6 +275,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
       layout,
       onVisibleRangeChange,
       onRenderRangeChange,
+      pinnedWidths,
       profiling,
       rowOverscan,
       virtualizeColumns
@@ -853,6 +861,19 @@ type ColumnScrollOffsetInput = {
   readonly pinnedColumns: readonly PinnedColumn[]
 }
 
+function getPinnedWidths(pinnedColumns: readonly PinnedColumn[]): {
+  readonly left: number
+  readonly right: number
+} {
+  let left = 0
+  let right = 0
+  for (const column of pinnedColumns) {
+    if (column.pinned === 'left') left += column.size
+    else right += column.size
+  }
+  return { left, right }
+}
+
 function getColumnScrollOffset({
   alignment,
   currentScrollX,
@@ -872,12 +893,7 @@ function getColumnScrollOffset({
       `align must be "auto", "start", "center", or "end"; received ${String(alignment)}`
     )
 
-  const leftPinnedWidth = pinnedColumns
-    .filter((column) => column.pinned === 'left')
-    .reduce((width, column) => width + column.size, 0)
-  const rightPinnedWidth = pinnedColumns
-    .filter((column) => column.pinned === 'right')
-    .reduce((width, column) => width + column.size, 0)
+  const { left: leftPinnedWidth, right: rightPinnedWidth } = getPinnedWidths(pinnedColumns)
   const centerStart = leftPinnedWidth
   const centerEnd = Math.max(centerStart, viewportWidth - rightPinnedWidth)
   const centerWidth = centerEnd - centerStart

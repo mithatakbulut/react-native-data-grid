@@ -19,7 +19,18 @@ import {
   scrollHorizontal,
   scrollVertical
 } from './grid-test-utils.js'
-import type { DataGridHandle } from '../src/index.js'
+import type { DataGridColumn, DataGridHandle } from '../src/index.js'
+
+/** Wide enough that a 400px viewport keeps a usable center band next to the pinned overlays. */
+const widePinnedColumns: readonly DataGridColumn<{ readonly id: number }>[] = [
+  { id: 'id', width: 100, pinned: 'left', renderCell: ({ row }) => `id-${row.id}` },
+  ...Array.from({ length: 6 }, (_, index) => ({
+    id: `c${index}`,
+    width: 120,
+    renderCell: ({ row }: { row: { readonly id: number } }) => `c${index}-${row.id}`
+  })),
+  { id: 'actions', width: 80, pinned: 'right' as const, renderCell: () => 'actions' }
+]
 
 afterEach(() => {
   vi.clearAllMocks()
@@ -156,7 +167,7 @@ describe('DataGrid window behaviour', () => {
     it('fires onVisibleRangeChange when horizontal scroll changes the column window', () => {
       const onVisibleRangeChange = vi.fn()
       const grid = renderGrid({
-        columns: pinnedColumns,
+        columns: widePinnedColumns,
         columnOverscan: 0,
         rowOverscan: 0,
         onVisibleRangeChange
@@ -164,11 +175,48 @@ describe('DataGrid window behaviour', () => {
       layoutGrid(grid, { width: 400, height: 200 })
       onVisibleRangeChange.mockClear()
 
-      scrollHorizontal(grid, 420)
+      scrollHorizontal(grid, 200)
       expect(onVisibleRangeChange).toHaveBeenCalledTimes(1)
       expect(
         onVisibleRangeChange.mock.lastCall?.[0].columns.items.map((item) => item.index)
-      ).toEqual([3])
+      ).toEqual([2, 3, 4])
+    })
+
+    it('excludes center columns hidden underneath the pinned overlays from the visible window', () => {
+      const onVisibleRangeChange = vi.fn()
+      const onRenderRangeChange = vi.fn()
+      const grid = renderGrid({
+        columns: widePinnedColumns,
+        columnOverscan: 0,
+        rowOverscan: 0,
+        onVisibleRangeChange,
+        onRenderRangeChange
+      })
+      // Viewport 400 wide; the left pin covers 0-100 and the right pin covers 320-400, so only
+      // the 220px band between them shows center columns: c0 (100-220) and c1 (220-340).
+      layoutGrid(grid, { width: 400, height: 200 })
+
+      expect(
+        onVisibleRangeChange.mock.lastCall?.[0].columns.items.map((item) => item.index)
+      ).toEqual([1, 2])
+      // c2 starts at 340, entirely behind the right pin, but stays mounted for render.
+      expect(
+        onRenderRangeChange.mock.lastCall?.[0].columns.items.map((item) => item.index)
+      ).toEqual([1, 2, 3])
+    })
+
+    it('reports no visible center columns when the pinned overlays cover the whole viewport', () => {
+      const onVisibleRangeChange = vi.fn()
+      // The pinned fixture reserves 412px of overlay, leaving no center band at 400px wide.
+      const grid = renderGrid({
+        columns: pinnedColumns,
+        columnOverscan: 0,
+        rowOverscan: 0,
+        onVisibleRangeChange
+      })
+      layoutGrid(grid, { width: 400, height: 200 })
+
+      expect(onVisibleRangeChange.mock.lastCall?.[0].columns.items).toEqual([])
     })
 
     it('fires onVisibleRangeChange when vertical scroll changes the row window', () => {

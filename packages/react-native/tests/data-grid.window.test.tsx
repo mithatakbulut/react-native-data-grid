@@ -182,6 +182,24 @@ describe('DataGrid window behaviour', () => {
       expect(gridRef.current?.getProfilingSnapshot().scrollEventsWithoutRangeChange).toBe(2)
     })
 
+    it('keeps the current scroll offsets when a deep grid is resized', () => {
+      const onVisibleRangeChange = vi.fn()
+      const grid = renderGrid({
+        rowCount: 100_000,
+        rowOverscan: 0,
+        columnOverscan: 0,
+        onVisibleRangeChange
+      })
+      layoutGrid(grid, { width: 400, height: 200 })
+      scrollVertical(grid, 48 * 50_000)
+      onVisibleRangeChange.mockClear()
+
+      layoutGrid(grid, { width: 320, height: 300 })
+
+      expect(onVisibleRangeChange).toHaveBeenCalledTimes(1)
+      expect(onVisibleRangeChange.mock.lastCall?.[0].rows.startIndex).toBe(50_000)
+    })
+
     it('subtracts headerHeight from the body viewport when calculating visible rows', () => {
       const visibleRows: number[] = []
       const grid = renderGrid({

@@ -125,6 +125,10 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
   const [viewport, setViewport] = useState<ViewportSize>({ width: 0, height: 0 })
   const [window, setWindow] = useState<RenderWindow>(() => emptyWindow())
   const windowRef = useRef(window)
+  const lastLayoutWindowUpdate = useRef<{
+    readonly viewport: ViewportSize
+    readonly updateWindow: unknown
+  } | null>(null)
   const profiling = useGridProfiling(enableProfiling)
   const allCenterColumns = useMemo<ItemRange>(
     () => ({
@@ -187,13 +191,23 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
       const nextViewport = event.nativeEvent.layout
       const size = { width: nextViewport.width, height: nextViewport.height }
       setViewport(size)
-      updateWindow(size, 0, 0)
+      updateWindow(size, scrollOffsets.current.x, scrollOffsets.current.y)
+      lastLayoutWindowUpdate.current = { viewport: size, updateWindow }
     },
     [updateWindow]
   )
 
   useEffect(() => {
     if (viewport.width === 0 || viewport.height === 0) return
+    const lastUpdate = lastLayoutWindowUpdate.current
+    if (
+      lastUpdate?.viewport.width === viewport.width &&
+      lastUpdate.viewport.height === viewport.height &&
+      lastUpdate.updateWindow === updateWindow
+    ) {
+      lastLayoutWindowUpdate.current = null
+      return
+    }
     updateWindow(viewport, scrollOffsets.current.x, scrollOffsets.current.y)
   }, [updateWindow, viewport])
 

@@ -8,6 +8,15 @@ Experimental **0.1.x** release — a React Native data grid with true two-dimens
 
 Mounted cells scale with the visible row and column windows, not with every column in each visible row. The API may change before `1.0.0`.
 
+## Release performance evidence
+
+The benchmark lab and the rules for publishing a release-build result live in
+[benchmarks](./benchmarks/README.md). Only reports committed under
+[benchmarks/results](./benchmarks/results) count as published evidence: each report records the
+physical device, OS, React Native/Expo versions, build type, source commit, dataset, interaction,
+and raw frame diagnostics. There are currently no published device measurements, so this project
+does not make comparative speed or smoothness claims yet.
+
 ## Installation
 
 ```sh

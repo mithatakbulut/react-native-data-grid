@@ -21,6 +21,8 @@
     "test:e2e": "bash e2e/scripts/run-maestro.sh test e2e/maestro/pinned-columns.yaml e2e/maestro/pinned-columns-100-cols.yaml e2e/maestro/pinned-columns-multi-left.yaml e2e/maestro/pinned-columns-nested-scroll.yaml e2e/maestro/pinned-columns-central-column.yaml e2e/maestro/pinned-columns-viewports.yaml e2e/maestro/pinned-columns-rich-cells.yaml e2e/maestro/pinned-columns-image-cells.yaml",
     "test:e2e:screenshots": "bash e2e/scripts/run-maestro.sh test e2e/maestro/screenshots",
     "test:e2e:screenshots:compare": "node e2e/scripts/compare-screenshots.mjs",
+    "benchmark:android:release": "bash benchmarks/scripts/install-android-release.sh",
+    "benchmark:android:capture": "bash benchmarks/scripts/capture-android-release-metrics.sh",
     "typecheck": "pnpm --filter @react-native-data-grid/core typecheck && pnpm --filter @react-native-data-grid/core build && pnpm --filter @react-native-data-grid/react-native typecheck && pnpm --filter @react-native-data-grid/react-native build && pnpm --filter @react-native-data-grid/demo typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

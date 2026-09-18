@@ -45,8 +45,8 @@
     "@react-native-data-grid/core": "workspace:*"
   },
   "peerDependencies": {
-    "react": ">=19.0.0",
-    "react-native": ">=0.79.0"
+    "react": ">=19.2.3 <20.0.0",
+    "react-native": ">=0.86.0 <0.88.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

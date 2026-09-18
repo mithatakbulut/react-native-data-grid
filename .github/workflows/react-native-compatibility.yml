@@ -1,0 +1,41 @@
+name: React Native compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  react-native-package:
+    name: React Native ${{ matrix.react-native }} / React ${{ matrix.react }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - react-native: 0.86.0
+            react: 19.2.3
+          - react-native: 0.87.0
+            react: 19.2.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build the core package
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @react-native-data-grid/core build
+
+      - name: Typecheck and test against React Native ${{ matrix.react-native }}
+        run: node scripts/test-react-native-compatibility.mjs ${{ matrix.react-native }} ${{ matrix.react }}

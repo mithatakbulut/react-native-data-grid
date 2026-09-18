@@ -20,12 +20,16 @@ npm install @react-native-data-grid/react-native
 
 ### Peer dependencies
 
-| Package        | Version     |
-| -------------- | ----------- |
-| `react`        | `>= 19.0.0` |
-| `react-native` | `>= 0.79.0` |
+| Package        | Version              |
+| -------------- | -------------------- |
+| `react`        | `>= 19.2.3 < 20.0.0` |
+| `react-native` | `>= 0.86.0 < 0.88.0` |
 
-Tested with Expo SDK 53 and React Native 0.79. See [Expo / bare RN](#expo--bare-react-native) below.
+### Compatibility policy
+
+The supported React Native releases are **0.86.x** and **0.87.x**. CI runs the React Native package's TypeScript and component test suite against the first release in this range (0.86.0) and the latest stable release (0.87.0), both with React 19.2.3.
+
+Versions outside the peer range may happen to work, but are not supported and are not a compatibility promise. The repository's Expo SDK 53 demo uses React Native 0.79 as a development fixture; it is not evidence of compatibility for published-package consumers.
 
 ## Quick start
 
@@ -182,7 +186,7 @@ Do not expect AG Grid–class features in `0.1.x`:
 ## Expo / bare React Native
 
 - **Pure JavaScript** — no native modules; works in Expo managed workflow and bare RN.
-- **Peer deps** — ensure your app uses React 19+ and RN 0.79+ (or widen at your own risk; not tested on older versions).
+- **Peer deps** — use React 19.2.3+ (before React 20) and React Native 0.86.x or 0.87.x. Other versions may work but are outside the supported compatibility policy.
 - **Nested scroll views** — the grid uses vertical + horizontal `ScrollView`s; test nested-scroll scenarios in your layout (see demo and Maestro flows in this repo).
 
 Reference implementation: [`apps/demo`](./apps/demo) (Expo app, monorepo-only, not published).

@@ -12,12 +12,12 @@ npm install @react-native-data-grid/react-native
 
 ### Peer dependencies
 
-| Package        | Version     |
-| -------------- | ----------- |
-| `react`        | `>= 19.0.0` |
-| `react-native` | `>= 0.79.0` |
+| Package        | Version              |
+| -------------- | -------------------- |
+| `react`        | `>= 19.2.3 < 20.0.0` |
+| `react-native` | `>= 0.86.0 < 0.88.0` |
 
-Works with **Expo** and **bare React Native** projects that satisfy the peer range. No native modules are required.
+Supported React Native versions are **0.86.x** and **0.87.x**. CI runs this package's TypeScript and component test suite against 0.86.0 and 0.87.0 with React 19.2.3. Versions outside that range may work, but are not supported. The grid has no native modules and works in Expo or bare React Native projects that use a supported version.
 
 ## Quick start
 

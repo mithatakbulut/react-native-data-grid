@@ -43,6 +43,10 @@ pnpm demo
 ## Run
 
 ```sh
+# Merge-gate coverage: basic pinning, multiple left pins, alternating scroll,
+# and center-column visibility.
+pnpm test:e2e:smoke
+
 # Full device suite (scroll, multi-pinned, nested scroll, viewport checks)
 pnpm test:e2e
 
@@ -52,6 +56,13 @@ pnpm test:e2e:screenshots
 
 This suite is intentionally excluded from `pnpm check` because it requires a booted device with the
 development build installed.
+
+## CI coverage
+
+GitHub Actions runs the Android smoke suite for every pull request targeting `main`, so a
+regression in the critical pinned-scrolling paths blocks merging. Pushes to `main` and the nightly
+schedule run the full Android suite. The CI job builds and installs the native demo application on
+an Android emulator, starts Metro, then runs Maestro; it does not rely on Expo Go.
 
 ## Flows
 

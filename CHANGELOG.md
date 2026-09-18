@@ -21,4 +21,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Demo app (`@react-native-data-grid/demo`) is monorepo-only and not published to npm.
 - Requires `react >= 19.0.0` and `react-native >= 0.79.0` (see peer dependencies).
 
-[0.1.0]: https://github.com/w1that/react-native-data-grid/releases/tag/v0.1.0
+[0.1.0]: https://github.com/mithatakbulut/react-native-data-grid/releases/tag/v0.1.0

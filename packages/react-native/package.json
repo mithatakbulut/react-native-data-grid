@@ -19,12 +19,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/w1that/react-native-data-grid.git",
+    "url": "git+https://github.com/mithatakbulut/react-native-data-grid.git",
     "directory": "packages/react-native"
   },
-  "homepage": "https://github.com/w1that/react-native-data-grid#readme",
+  "homepage": "https://github.com/mithatakbulut/react-native-data-grid#readme",
   "bugs": {
-    "url": "https://github.com/w1that/react-native-data-grid/issues"
+    "url": "https://github.com/mithatakbulut/react-native-data-grid/issues"
   },
   "publishConfig": {
     "access": "public"

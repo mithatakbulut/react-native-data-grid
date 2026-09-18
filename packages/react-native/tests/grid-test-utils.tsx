@@ -63,6 +63,14 @@ export type RenderGridOptions<Row = TestRow> = {
       readonly items: readonly { readonly index: number }[]
     }
   }) => void
+  readonly onRenderRangeChange?: (range: {
+    readonly rows: { readonly startIndex: number; readonly endIndex: number }
+    readonly columns: {
+      readonly startIndex: number
+      readonly endIndex: number
+      readonly items: readonly { readonly index: number }[]
+    }
+  }) => void
 }
 
 export function createGridElement<Row = TestRow>(
@@ -85,7 +93,8 @@ export function createGridElement<Row = TestRow>(
     onCellLongPress,
     onRowPress,
     gridRef,
-    onVisibleRangeChange
+    onVisibleRangeChange,
+    onRenderRangeChange
   } = options
   return (
     <Grid
@@ -106,6 +115,7 @@ export function createGridElement<Row = TestRow>(
       columnOverscan={columnOverscan}
       columns={columns}
       onVisibleRangeChange={onVisibleRangeChange}
+      onRenderRangeChange={onRenderRangeChange}
     />
   )
 }

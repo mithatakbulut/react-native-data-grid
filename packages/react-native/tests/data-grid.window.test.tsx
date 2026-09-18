@@ -120,6 +120,27 @@ describe('DataGrid window behaviour', () => {
   })
 
   describe('visible range callbacks', () => {
+    it('reports the non-overscanned visible window separately from the overscanned render window', () => {
+      const onVisibleRangeChange = vi.fn()
+      const onRenderRangeChange = vi.fn()
+      const grid = renderGrid({
+        rowOverscan: 2,
+        columnOverscan: 1,
+        onVisibleRangeChange,
+        onRenderRangeChange
+      })
+      layoutGrid(grid, { width: 200, height: 200 })
+
+      expect(onVisibleRangeChange.mock.lastCall?.[0]).toMatchObject({
+        rows: { startIndex: 0, endIndex: 4 },
+        columns: { startIndex: 0, endIndex: 2 }
+      })
+      expect(onRenderRangeChange.mock.lastCall?.[0]).toMatchObject({
+        rows: { startIndex: 0, endIndex: 6 },
+        columns: { startIndex: 0, endIndex: 3 }
+      })
+    })
+
     it('fires onVisibleRangeChange once after the initial layout', () => {
       const onVisibleRangeChange = vi.fn()
       const grid = renderGrid({ onVisibleRangeChange, columnOverscan: 0, rowOverscan: 0 })
@@ -226,13 +247,13 @@ describe('DataGrid window behaviour', () => {
         visibleRows.length = 0
         for (let index = rows.startIndex; index < rows.endIndex; index += 1) visibleRows.push(index)
       }
-      const grid = renderGrid({ rowOverscan: 0, rowCount: 20, onVisibleRangeChange: trackRows })
+      const grid = renderGrid({ rowOverscan: 0, rowCount: 20, onRenderRangeChange: trackRows })
       layoutGrid(grid, { width: 400, height: 140 })
       expect(visibleRows.length).toBeLessThanOrEqual(2)
 
       act(() => {
         grid.update(
-          createGridElement({ rowOverscan: 3, rowCount: 20, onVisibleRangeChange: trackRows })
+          createGridElement({ rowOverscan: 3, rowCount: 20, onRenderRangeChange: trackRows })
         )
       })
       expect(visibleRows.length).toBeGreaterThan(2)
@@ -328,7 +349,7 @@ describe('DataGrid window behaviour', () => {
       const grid = renderGrid({
         columnOverscan: 0,
         rowOverscan: 0,
-        onVisibleRangeChange: trackColumns
+        onRenderRangeChange: trackColumns
       })
       layoutGrid(grid, { width: 200, height: 200 })
       const initialCount = centerColumnIds.length
@@ -338,7 +359,7 @@ describe('DataGrid window behaviour', () => {
           createGridElement({
             columnOverscan: 2,
             rowOverscan: 0,
-            onVisibleRangeChange: trackColumns
+            onRenderRangeChange: trackColumns
           })
         )
       })

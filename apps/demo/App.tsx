@@ -395,7 +395,7 @@ export default function App() {
           rowOverscan={rowOverscan}
           columnOverscan={columnOverscan}
           style={styles.grid}
-          onVisibleRangeChange={({ rows, columns: visibleColumns }) => {
+          onRenderRangeChange={({ rows, columns: visibleColumns }) => {
             setMetrics({
               rowStart: rows.startIndex,
               rowEnd: rows.endIndex,
@@ -418,7 +418,7 @@ export default function App() {
           rowOverscan={rowOverscan}
           columnOverscan={columnOverscan}
           style={styles.grid}
-          onVisibleRangeChange={({ rows, columns: visibleColumns }) => {
+          onRenderRangeChange={({ rows, columns: visibleColumns }) => {
             setMetrics({
               rowStart: rows.startIndex,
               rowEnd: rows.endIndex,

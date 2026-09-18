@@ -10,25 +10,26 @@ Both components accept the same props. `DataGrid` virtualizes rows and columns; 
 
 #### `DataGridProps<Row>`
 
-| Prop                   | Type                                | Default | Description                                                           |
-| ---------------------- | ----------------------------------- | ------- | --------------------------------------------------------------------- |
-| `rowCount`             | `number`                            | —       | Total logical row count                                               |
-| `getRow`               | `(rowIndex: number) => Row`         | —       | Row accessor; avoid materializing full datasets                       |
-| `rowHeight`            | `number`                            | —       | Fixed height for every row (px)                                       |
-| `columns`              | `readonly DataGridColumn<Row>[]`    | —       | Column definitions (width, pin, render)                               |
-| `rowOverscan`          | `number`                            | `3`     | Extra rows mounted above/below the viewport                           |
-| `columnOverscan`       | `number`                            | `1`     | Extra columns mounted left/right of the center window                 |
-| `headerHeight`         | `number`                            | `44`    | Header row height (px)                                                |
-| `style`                | `StyleProp<ViewStyle>`              | —       | Root container style                                                  |
-| `theme`                | `DataGridTheme`                     | —       | Static styles for grid structural surfaces                            |
-| `getRowStyle`          | `(context) => StyleProp<ViewStyle>` | —       | Additional style for each mounted body row                            |
-| `getCellStyle`         | `(context) => StyleProp<ViewStyle>` | —       | Additional style for each mounted body cell                           |
-| `onCellPress`          | `(event) => void`                   | —       | Called when a body cell is pressed                                    |
-| `onCellLongPress`      | `(event) => void`                   | —       | Called when a body cell is long-pressed                               |
-| `onRowPress`           | `(event) => void`                   | —       | Called when any body cell in a row is pressed                         |
-| `testID`               | `string`                            | —       | Native test id; scroll surfaces and pinned cells use derived suffixes |
-| `onVisibleRangeChange` | `(range) => void`                   | —       | Called when visible row/column windows change                         |
-| `enableProfiling`      | `boolean`                           | `false` | Dev-only React Profiler counters; disable for benchmarks              |
+| Prop                   | Type                                | Default | Description                                                              |
+| ---------------------- | ----------------------------------- | ------- | ------------------------------------------------------------------------ |
+| `rowCount`             | `number`                            | —       | Total logical row count                                                  |
+| `getRow`               | `(rowIndex: number) => Row`         | —       | Row accessor; avoid materializing full datasets                          |
+| `rowHeight`            | `number`                            | —       | Fixed height for every row (px)                                          |
+| `columns`              | `readonly DataGridColumn<Row>[]`    | —       | Column definitions (width, pin, render)                                  |
+| `rowOverscan`          | `number`                            | `3`     | Extra rows mounted above/below the viewport                              |
+| `columnOverscan`       | `number`                            | `1`     | Extra columns mounted left/right of the center window                    |
+| `headerHeight`         | `number`                            | `44`    | Header row height (px)                                                   |
+| `style`                | `StyleProp<ViewStyle>`              | —       | Root container style                                                     |
+| `theme`                | `DataGridTheme`                     | —       | Static styles for grid structural surfaces                               |
+| `getRowStyle`          | `(context) => StyleProp<ViewStyle>` | —       | Additional style for each mounted body row                               |
+| `getCellStyle`         | `(context) => StyleProp<ViewStyle>` | —       | Additional style for each mounted body cell                              |
+| `onCellPress`          | `(event) => void`                   | —       | Called when a body cell is pressed                                       |
+| `onCellLongPress`      | `(event) => void`                   | —       | Called when a body cell is long-pressed                                  |
+| `onRowPress`           | `(event) => void`                   | —       | Called when any body cell in a row is pressed                            |
+| `testID`               | `string`                            | —       | Native test id; scroll surfaces and pinned cells use derived suffixes    |
+| `onVisibleRangeChange` | `(range) => void`                   | —       | Called when the non-overscanned visible row/center-column window changes |
+| `onRenderRangeChange`  | `(range) => void`                   | —       | Called when the overscanned mounted row/center-column window changes     |
+| `enableProfiling`      | `boolean`                           | `false` | Dev-only React Profiler counters; disable for benchmarks                 |
 
 #### Styling
 

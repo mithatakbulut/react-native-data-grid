@@ -27,7 +27,7 @@ describe('RowVirtualizedDataGrid', () => {
       rowCount: 1,
       rowOverscan: 0,
       columnOverscan: 0,
-      onVisibleRangeChange: ({ columns }) => {
+      onRenderRangeChange: ({ columns }) => {
         centerColumnIds.length = 0
         centerColumnIds.push(...columns.items.map((item) => pinnedColumns[item.index]!.id))
       }

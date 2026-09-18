@@ -89,7 +89,13 @@ export type DataGridProps<Row> = {
   readonly onRowPress?: (event: DataGridRowEvent<Row>) => void
   /** Optional native test identifier. Child scroll surfaces and pinned cells derive stable suffixes. */
   readonly testID?: string
+  /** Called when the non-overscanned row or center-column window changes. */
   readonly onVisibleRangeChange?: (range: {
+    readonly rows: ItemRange
+    readonly columns: ItemRange
+  }) => void
+  /** Called when the overscanned row or center-column window mounted for rendering changes. */
+  readonly onRenderRangeChange?: (range: {
     readonly rows: ItemRange
     readonly columns: ItemRange
   }) => void
@@ -155,6 +161,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
     onRowPress,
     testID,
     onVisibleRangeChange,
+    onRenderRangeChange,
     enableProfiling = false,
     virtualizeColumns
   } = props
@@ -171,6 +178,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
   const [viewport, setViewport] = useState<ViewportSize>({ width: 0, height: 0 })
   const [window, setWindow] = useState<RenderWindow>(() => emptyWindow())
   const windowRef = useRef(window)
+  const visibleWindowRef = useRef<RenderWindow>(emptyWindow())
   const lastLayoutWindowUpdate = useRef<{
     readonly viewport: ViewportSize
     readonly updateWindow: unknown
@@ -190,7 +198,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
   const updateWindow = useCallback(
     (nextViewport: ViewportSize, scrollOffsetX: number, scrollOffsetY: number) => {
       const bodyHeight = Math.max(0, nextViewport.height - headerHeight)
-      const calculated = {
+      const calculatedRenderWindow = {
         rows: layout.getVisibleRows({
           scrollY: scrollOffsetY,
           viewportHeight: bodyHeight,
@@ -204,21 +212,53 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
             })
           : allCenterColumns
       }
+      const calculatedVisibleWindow = {
+        rows: layout.getVisibleRows({
+          scrollY: scrollOffsetY,
+          viewportHeight: bodyHeight,
+          overscan: 0
+        }),
+        columns: layout.getVisibleColumns({
+          scrollX: scrollOffsetX,
+          viewportWidth: nextViewport.width,
+          overscan: 0
+        })
+      }
       const current = windowRef.current
       const next = {
-        rows: sameRange(current.rows, calculated.rows) ? current.rows : calculated.rows,
-        columns: sameRange(current.columns, calculated.columns)
+        rows: sameRange(current.rows, calculatedRenderWindow.rows)
+          ? current.rows
+          : calculatedRenderWindow.rows,
+        columns: sameRange(current.columns, calculatedRenderWindow.columns)
           ? current.columns
-          : calculated.columns
+          : calculatedRenderWindow.columns
       }
-      if (next.rows === current.rows && next.columns === current.columns) {
+      const currentVisible = visibleWindowRef.current
+      const nextVisible = {
+        rows: sameRange(currentVisible.rows, calculatedVisibleWindow.rows)
+          ? currentVisible.rows
+          : calculatedVisibleWindow.rows,
+        columns: sameRange(currentVisible.columns, calculatedVisibleWindow.columns)
+          ? currentVisible.columns
+          : calculatedVisibleWindow.columns
+      }
+      const renderWindowChanged = next.rows !== current.rows || next.columns !== current.columns
+      const visibleWindowChanged =
+        nextVisible.rows !== currentVisible.rows || nextVisible.columns !== currentVisible.columns
+      if (!renderWindowChanged && !visibleWindowChanged) {
         profiling.recordScrollWithoutRangeChange()
         return
       }
-      windowRef.current = next
-      profiling.recordRangeChange()
-      setWindow(next)
-      onVisibleRangeChange?.(next)
+      if (renderWindowChanged) {
+        windowRef.current = next
+        profiling.recordRangeChange()
+        setWindow(next)
+        onRenderRangeChange?.(next)
+      }
+      if (visibleWindowChanged) {
+        visibleWindowRef.current = nextVisible
+        onVisibleRangeChange?.(nextVisible)
+      }
     },
     [
       allCenterColumns,
@@ -226,6 +266,7 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
       headerHeight,
       layout,
       onVisibleRangeChange,
+      onRenderRangeChange,
       profiling,
       rowOverscan,
       virtualizeColumns

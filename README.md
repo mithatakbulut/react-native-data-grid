@@ -137,19 +137,20 @@ ref.current?.resetProfiling()
 />
 ```
 
-`onVisibleRangeChange` fires when the visible row or column window changes:
+`onVisibleRangeChange` fires when the row or center-column window intersecting the viewport changes. It never includes overscan:
 
 ```tsx
 <DataGrid
   {...props}
   onVisibleRangeChange={({ rows, columns }) => {
-    // rows: { startIndex, endIndex, items }
-    // columns: center (non-pinned) column window
+    // the rows and center columns currently on screen
   }}
 />
 ```
 
-Pinned columns are excluded from the `columns` range; they are always mounted separately.
+Use `onRenderRangeChange` when you need the overscanned window currently mounted by the grid—for example, to observe rendering or drive prefetching. With `RowVirtualizedDataGrid`, this callback includes every unpinned center column because that component mounts all of them.
+
+Pinned columns are excluded from both column ranges; they are always mounted separately.
 
 Pinned columns are edge-oriented. Declare any left-pinned columns first and any right-pinned columns last: `left-pinned* → unpinned* → right-pinned*`. Unsupported arrangements throw when the grid layout is created.
 

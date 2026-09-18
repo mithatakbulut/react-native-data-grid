@@ -129,7 +129,7 @@ describe('DataGrid pinned columns', () => {
       columnOverscan: 0,
       enableProfiling: true,
       gridRef,
-      onVisibleRangeChange: ({ columns }) => {
+      onRenderRangeChange: ({ columns }) => {
         centerColumnIds.length = 0
         centerColumnIds.push(...columns.items.map((item) => multiPinnedColumns[item.index]!.id))
       }
@@ -186,7 +186,7 @@ describe('DataGrid pinned columns', () => {
       columns: multiPinnedColumns,
       rowOverscan: 0,
       columnOverscan: 0,
-      onVisibleRangeChange: ({ columns }) => {
+      onRenderRangeChange: ({ columns }) => {
         centerColumnIds.length = 0
         centerColumnIds.push(...columns.items.map((item) => multiPinnedColumns[item.index]!.id))
       }

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Automated Android release-benchmark runner (`pnpm benchmark:android:run`). It cold-launches the
+  demo via `rndg://lab`, performs fast vertical and horizontal flings, parses raw `gfxinfo`, and
+  writes a filled report under `benchmarks/results/`. The default publish matrix is 100k×100 and
+  100k×250, text cells, 2D vs rows-only, three repetitions. Parser and report generation are covered
+  by `pnpm test:benchmark`. Device measurements themselves are still unpublished until a generated
+  report is committed.
+
 ## [0.2.0] - 2026-09-18
 
 The production-foundation release. `0.1.0` shipped with several geometry and scrolling

@@ -1,0 +1,9 @@
+Applications Graphics Acceleration Info:
+
+** Graphics info for pid 99 [com.reactnativedatagrid.demo] **
+
+Total frames rendered: 100
+Janky frames: 4
+Number Missed Vsync: 1
+Number Slow UI thread: 3
+HISTOGRAM: 5ms=60 8ms=30 16ms=6 24ms=4

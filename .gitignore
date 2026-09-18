@@ -24,3 +24,6 @@ apps/demo/ios/build/
 # Secrets
 .env
 .env.*
+
+# Local last-install record for the Android release benchmark runner
+benchmarks/results/.android-release-build-identity.json

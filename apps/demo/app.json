@@ -2,12 +2,21 @@
   "expo": {
     "name": "Grid Geometry Demo",
     "slug": "grid-geometry-demo",
+    "scheme": "rndg",
     "version": "0.1.0",
     "ios": {
       "bundleIdentifier": "com.reactnativedatagrid.demo"
     },
     "android": {
-      "package": "com.reactnativedatagrid.demo"
+      "package": "com.reactnativedatagrid.demo",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": false,
+          "data": [{ "scheme": "rndg", "host": "lab" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "orientation": "portrait",
     "userInterfaceStyle": "light",

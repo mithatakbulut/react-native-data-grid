@@ -1,7 +1,8 @@
 # Release-build benchmark report — template
 
-> This template is not benchmark evidence. Copy it to a dated report only after completing all
-> runs and committing the raw captures or linked immutable artifacts.
+> This template is not benchmark evidence. `pnpm benchmark:android:run` writes a completed copy
+> under `benchmarks/results/` after a physical-device session. Copy it by hand only when attaching
+> an iPhone Instruments trace or an operator-driven scenario the runner does not inject.
 
 ## Build identity
 

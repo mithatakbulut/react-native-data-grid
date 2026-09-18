@@ -1,11 +1,30 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Image,
+  Linking,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native'
 import {
   DataGrid,
   RowVirtualizedDataGrid,
   type DataGridColumn,
   type DataGridHandle
 } from '@react-native-data-grid/react-native'
+import {
+  PRESETS,
+  datasetIdForPreset,
+  defaultLabConfig,
+  labReadyLabel,
+  parseLabUrl,
+  publicRendererForCellMode,
+  type CellMode,
+  type GridImplementation,
+  type Preset
+} from './lab-config'
 
 type DemoRow = {
   readonly id: number
@@ -15,22 +34,6 @@ type DemoRow = {
   readonly revenue: number
   readonly change: number
 }
-
-type Preset = {
-  readonly label: string
-  readonly rowCount: number
-  readonly columnCount: number
-}
-
-type CellMode = 'light' | 'rich' | 'image'
-type GridImplementation = 'two-dimensional' | 'rows-only'
-
-const PRESETS: readonly Preset[] = [
-  { label: '10k × 20', rowCount: 10_000, columnCount: 20 },
-  { label: '100k × 20', rowCount: 100_000, columnCount: 20 },
-  { label: '100k × 100', rowCount: 100_000, columnCount: 100 },
-  { label: '100k × 250', rowCount: 100_000, columnCount: 250 }
-]
 
 const BASE_COLUMNS = [
   { id: 'id', width: 86, header: 'ID' },
@@ -204,14 +207,19 @@ function ImageCell({
 
 export default function App() {
   const gridRef = useRef<DataGridHandle>(null)
-  const [preset, setPreset] = useState<Preset>(PRESETS[2]!)
-  const [rowOverscan, setRowOverscan] = useState(3)
-  const [columnOverscan, setColumnOverscan] = useState(2)
-  const [pinnedLeftCount, setPinnedLeftCount] = useState(1)
-  const [pinnedRightCount, setPinnedRightCount] = useState(1)
-  const [cellMode, setCellMode] = useState<CellMode>('light')
-  const [gridImplementation, setGridImplementation] =
-    useState<GridImplementation>('two-dimensional')
+  const defaults = defaultLabConfig()
+  const [preset, setPreset] = useState<Preset>(
+    PRESETS.find((item) => item.id === defaults.dataset)!
+  )
+  const [rowOverscan, setRowOverscan] = useState(defaults.rowOverscan)
+  const [columnOverscan, setColumnOverscan] = useState(defaults.columnOverscan)
+  const [pinnedLeftCount, setPinnedLeftCount] = useState(defaults.pinnedLeftCount)
+  const [pinnedRightCount, setPinnedRightCount] = useState(defaults.pinnedRightCount)
+  const [cellMode, setCellMode] = useState<CellMode>(defaults.cellMode)
+  const [gridImplementation, setGridImplementation] = useState<GridImplementation>(
+    defaults.implementation
+  )
+  const [labReady, setLabReady] = useState(false)
   const [metrics, setMetrics] = useState({
     rowStart: 0,
     rowEnd: 0,
@@ -250,6 +258,43 @@ export default function App() {
       centerColumns: 0
     })
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const applyUrl = (url: string | null) => {
+      const parsed = parseLabUrl(url)
+      if (parsed) {
+        const nextPreset = PRESETS.find((item) => item.id === parsed.dataset)
+        if (nextPreset) selectPreset(nextPreset)
+        setGridImplementation(parsed.implementation)
+        setCellMode(parsed.cellMode)
+        setRowOverscan(parsed.rowOverscan)
+        setColumnOverscan(parsed.columnOverscan)
+        setPinnedLeftCount(parsed.pinnedLeftCount)
+        setPinnedRightCount(parsed.pinnedRightCount)
+        setMetrics({
+          rowStart: 0,
+          rowEnd: 0,
+          columnStart: 0,
+          columnEnd: 0,
+          rows: 0,
+          centerColumns: 0
+        })
+        setProfiling('Reset profile, scroll, then capture a snapshot.')
+      }
+      if (!cancelled) setLabReady(true)
+    }
+
+    void Linking.getInitialURL().then((url) => {
+      if (!cancelled) applyUrl(url)
+    })
+    const subscription = Linking.addEventListener('url', ({ url }) => applyUrl(url))
+    return () => {
+      cancelled = true
+      subscription.remove()
+    }
+  }, [selectPreset])
+
   const captureProfiling = () => {
     const snapshot = gridRef.current?.getProfilingSnapshot()
     if (!snapshot) return
@@ -277,13 +322,28 @@ export default function App() {
       </View>
 
       <View style={styles.controls}>
+        <View
+          testID="demo-lab-ready"
+          collapsable={false}
+          accessible
+          accessibilityLabel={
+            labReady
+              ? labReadyLabel({
+                  dataset: datasetIdForPreset(preset),
+                  implementation: gridImplementation,
+                  renderer: publicRendererForCellMode(cellMode)
+                })
+              : 'lab-pending'
+          }
+          style={styles.labReady}
+        />
         <ControlLabel label="Scenario">
           {PRESETS.map((item) => (
             <ChoiceButton
-              key={item.label}
-              testID={`demo-preset-${item.label.replace(/\s+/g, '-').replace(/×/g, 'x').toLowerCase()}`}
+              key={item.id}
+              testID={`demo-preset-${item.id}`}
               label={item.label}
-              selected={preset.label === item.label}
+              selected={preset.id === item.id}
               onPress={() => selectPreset(item)}
             />
           ))}
@@ -310,11 +370,13 @@ export default function App() {
         </ControlLabel>
         <ControlLabel label="Implementation">
           <ChoiceButton
+            testID="demo-implementation-two-dimensional"
             label="2D virtualized"
             selected={gridImplementation === 'two-dimensional'}
             onPress={() => selectGridImplementation('two-dimensional')}
           />
           <ChoiceButton
+            testID="demo-implementation-rows-only"
             label="Rows only"
             selected={gridImplementation === 'rows-only'}
             onPress={() => selectGridImplementation('rows-only')}
@@ -368,26 +430,30 @@ export default function App() {
         <DebugMetric label="Mounted cells" value={mountedCells.toLocaleString()} />
       </View>
 
-      <View style={styles.profilingControls}>
-        <TouchableOpacity
-          onPress={() => gridRef.current?.resetProfiling()}
-          style={styles.profileButton}
-        >
-          <Text style={styles.profileButtonText}>Reset profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={captureProfiling} style={styles.profileButton}>
-          <Text style={styles.profileButtonText}>Snapshot</Text>
-        </TouchableOpacity>
-      </View>
-      <Text selectable style={styles.profileText}>
-        {profiling}
-      </Text>
+      {__DEV__ ? (
+        <>
+          <View style={styles.profilingControls}>
+            <TouchableOpacity
+              onPress={() => gridRef.current?.resetProfiling()}
+              style={styles.profileButton}
+            >
+              <Text style={styles.profileButtonText}>Reset profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={captureProfiling} style={styles.profileButton}>
+              <Text style={styles.profileButtonText}>Snapshot</Text>
+            </TouchableOpacity>
+          </View>
+          <Text selectable style={styles.profileText}>
+            {profiling}
+          </Text>
+        </>
+      ) : null}
 
       {gridImplementation === 'two-dimensional' ? (
         <DataGrid
           ref={gridRef}
           testID="demo-grid"
-          enableProfiling
+          enableProfiling={__DEV__}
           rowCount={preset.rowCount}
           getRow={getRow}
           rowHeight={52}
@@ -410,7 +476,7 @@ export default function App() {
         <RowVirtualizedDataGrid
           ref={gridRef}
           testID="demo-grid"
-          enableProfiling
+          enableProfiling={__DEV__}
           rowCount={preset.rowCount}
           getRow={getRow}
           rowHeight={52}
@@ -539,6 +605,7 @@ const styles = StyleSheet.create({
     borderRadius: 6
   },
   jumpButtonText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  labReady: { position: 'absolute', width: 1, height: 1, opacity: 0 },
   controls: { paddingHorizontal: 16, paddingBottom: 8, gap: 7 },
   controlGroup: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 },
   controlLabel: { width: 86, color: '#475569', fontSize: 11, fontWeight: '700' },

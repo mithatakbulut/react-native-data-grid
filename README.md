@@ -11,11 +11,11 @@ Mounted cells scale with the visible row and column windows, not with every colu
 ## Release performance evidence
 
 The benchmark lab and the rules for publishing a release-build result live in
-[benchmarks](./benchmarks/README.md). Only reports committed under
-[benchmarks/results](./benchmarks/results) count as published evidence: each report records the
-physical device, OS, React Native/Expo versions, build type, source commit, dataset, interaction,
-and raw frame diagnostics. There are currently no published device measurements, so this project
-does not make comparative speed or smoothness claims yet.
+[benchmarks](./benchmarks/README.md). Capture is automated: a physical Android device, a release
+install, and `pnpm benchmark:android:run` write raw `gfxinfo` plus a filled report. Only reports
+committed under [benchmarks/results](./benchmarks/results) count as published evidence. There are
+currently no published device measurements, so this project does not make comparative speed or
+smoothness claims yet.
 
 ## Installation
 
@@ -205,7 +205,7 @@ Reference implementation: [`apps/demo`](./apps/demo) (Expo app, monorepo-only, n
 
 ```sh
 pnpm install
-pnpm test          # unit + component tests
+pnpm test          # unit + component tests + benchmark report pipeline
 pnpm build         # build both packages
 pnpm check         # format, lint, typecheck, test, build
 pnpm demo          # start Expo demo

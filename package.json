@@ -14,7 +14,8 @@
   "packageManager": "pnpm@10.28.2",
   "scripts": {
     "build": "pnpm --filter @react-native-data-grid/core build && pnpm --filter @react-native-data-grid/react-native build",
-    "test": "pnpm --filter @react-native-data-grid/core test && pnpm --filter @react-native-data-grid/react-native test",
+    "test": "pnpm --filter @react-native-data-grid/core test && pnpm --filter @react-native-data-grid/react-native test && pnpm test:benchmark",
+    "test:benchmark": "node --test benchmarks/tests/*.test.mjs",
     "test:package-consumer": "node scripts/test-packed-package-consumer.mjs",
     "test:e2e:setup": "bash e2e/scripts/ensure-maestro.sh",
     "test:e2e:smoke": "bash e2e/scripts/run-maestro.sh test e2e/maestro/pinned-columns.yaml e2e/maestro/pinned-columns-multi-left.yaml e2e/maestro/pinned-columns-nested-scroll.yaml e2e/maestro/pinned-columns-central-column.yaml",
@@ -22,6 +23,8 @@
     "test:e2e:screenshots": "bash e2e/scripts/run-maestro.sh test e2e/maestro/screenshots",
     "test:e2e:screenshots:compare": "node e2e/scripts/compare-screenshots.mjs",
     "benchmark:android:release": "bash benchmarks/scripts/install-android-release.sh",
+    "benchmark:android:run": "node benchmarks/scripts/run-android-release.mjs",
+    "benchmark:android:report": "node benchmarks/scripts/run-android-release.mjs --report-only",
     "benchmark:android:capture": "bash benchmarks/scripts/capture-android-release-metrics.sh",
     "typecheck": "pnpm --filter @react-native-data-grid/core typecheck && pnpm --filter @react-native-data-grid/core build && pnpm --filter @react-native-data-grid/react-native typecheck && pnpm --filter @react-native-data-grid/react-native build && pnpm --filter @react-native-data-grid/demo typecheck",
     "lint": "eslint .",

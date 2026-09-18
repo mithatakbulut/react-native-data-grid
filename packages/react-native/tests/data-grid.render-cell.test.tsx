@@ -107,6 +107,43 @@ describe('DataGrid custom cell rendering', () => {
     expect([...requestedRows].every((index) => index >= 0 && index <= 3)).toBe(true)
   })
 
+  it('resolves each rendered row once across center and pinned cells', () => {
+    const getRow = vi.fn((rowIndex: number) => ({ id: rowIndex }))
+    const columns: readonly DataGridColumn<{ id: number }>[] = [
+      {
+        id: 'left',
+        width: 80,
+        pinned: 'left',
+        renderCell: ({ row }) => `left-${row.id}`
+      },
+      ...Array.from({ length: 10 }, (_, index) => ({
+        id: `center-${index}`,
+        width: 80,
+        renderCell: ({ row }: { readonly row: { readonly id: number } }) => `center-${row.id}`
+      })),
+      {
+        id: 'right',
+        width: 80,
+        pinned: 'right',
+        renderCell: ({ row }) => `right-${row.id}`
+      }
+    ]
+    const grid = renderGrid({
+      rowCount: 20,
+      rowOverscan: 0,
+      columnOverscan: 0,
+      columns,
+      getRow
+    })
+
+    layoutGrid(grid, { width: 1_200, height: 1_004 })
+
+    expect(getRow).toHaveBeenCalledTimes(20)
+    expect(getRow.mock.calls.map(([rowIndex]) => rowIndex)).toEqual(
+      Array.from({ length: 20 }, (_, index) => index)
+    )
+  })
+
   it('calls getRow again and remounts cells when a row scrolls back into view', () => {
     const getRowCalls: number[] = []
     const columns: readonly DataGridColumn<{ id: number }>[] = [

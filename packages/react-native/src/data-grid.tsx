@@ -438,6 +438,7 @@ const GridRow = memo(function GridRow<Row>({
     profiling.recordRowMount()
     return () => profiling.recordRowUnmount()
   }, [profiling])
+  const row = getRow(rowIndex)
   return (
     <View style={[styles.row, { top, height }]}>
       {centerColumns.items.map((item) => {
@@ -447,7 +448,7 @@ const GridRow = memo(function GridRow<Row>({
           <GridCell
             key={column.id}
             rowIndex={rowIndex}
-            getRow={getRow}
+            row={row}
             column={column}
             left={item.offset}
             width={item.size}
@@ -462,7 +463,7 @@ const GridRow = memo(function GridRow<Row>({
           <GridPinnedCell
             key={column.id}
             rowIndex={rowIndex}
-            getRow={getRow}
+            row={row}
             definition={definition}
             column={column}
             viewportWidth={viewportWidth}
@@ -479,7 +480,7 @@ const GridRow = memo(function GridRow<Row>({
 
 type GridCellProps<Row> = {
   rowIndex: number
-  getRow: (index: number) => Row
+  row: Row
   column: DataGridColumn<Row>
   left: number
   width: number
@@ -488,7 +489,7 @@ type GridCellProps<Row> = {
 }
 const GridCell = memo(function GridCell<Row>({
   rowIndex,
-  getRow,
+  row,
   column,
   left,
   width,
@@ -500,7 +501,6 @@ const GridCell = memo(function GridCell<Row>({
     profiling.recordCellMount()
     return () => profiling.recordCellUnmount()
   }, [profiling])
-  const row = getRow(rowIndex)
   return (
     <CellFrame left={left} width={width} height={height}>
       {column.renderCell({ row, rowIndex, column })}
@@ -510,7 +510,7 @@ const GridCell = memo(function GridCell<Row>({
 
 type GridPinnedCellProps<Row> = {
   rowIndex: number
-  getRow: (index: number) => Row
+  row: Row
   definition: DataGridColumn<Row>
   column: PinnedColumn
   viewportWidth: number
@@ -521,7 +521,7 @@ type GridPinnedCellProps<Row> = {
 }
 const GridPinnedCell = memo(function GridPinnedCell<Row>({
   rowIndex,
-  getRow,
+  row,
   definition,
   column,
   viewportWidth,
@@ -535,7 +535,6 @@ const GridPinnedCell = memo(function GridPinnedCell<Row>({
     profiling.recordCellMount()
     return () => profiling.recordCellUnmount()
   }, [profiling])
-  const row = getRow(rowIndex)
   return (
     <PinnedFrame
       column={column}

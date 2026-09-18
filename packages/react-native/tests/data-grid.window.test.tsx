@@ -7,8 +7,11 @@ import './react-native-test-mock.js'
 import { horizontalScrollTo, verticalScrollTo } from './test-spies.js'
 import {
   basicColumns,
+  cellGeometry,
   createGridElement,
+  findBodyCellFrame,
   findBodyCellContent,
+  findRenderedNodes,
   findHeaderText,
   layoutGrid,
   pinnedColumns,
@@ -273,16 +276,91 @@ describe('DataGrid window behaviour', () => {
       expect(centerColumnIds.length).toBeGreaterThan(initialCount)
     })
 
-    it('recalculates row offsets when rowHeight changes', () => {
+    it('updates mounted row geometry when rowHeight changes without scrolling', () => {
       const gridRef = { current: null as DataGridHandle | null }
-      const grid = renderGrid({ gridRef, rowHeight: 48 })
-      layoutGrid(grid, { width: 400, height: 200 })
+      const grid = renderGrid({ gridRef, rowHeight: 48, rowOverscan: 0 })
+      layoutGrid(grid, { width: 400, height: 120 })
 
       act(() => {
         grid.update(createGridElement({ gridRef, rowHeight: 64 }))
       })
+      expect(cellGeometry(findBodyCellFrame(grid, 'id-1').props.style)).toMatchObject({
+        height: 64
+      })
       act(() => gridRef.current?.scrollToRow(2))
       expect(verticalScrollTo).toHaveBeenLastCalledWith({ y: 128, animated: true })
+    })
+
+    it('updates visible cell width and offset when a visible column width changes without scrolling', () => {
+      const grid = renderGrid({ rowCount: 1, rowOverscan: 0, columnOverscan: 0 })
+      layoutGrid(grid, { width: 400, height: 200 })
+
+      const resizedColumns = [
+        basicColumns[0]!,
+        { ...basicColumns[1]!, width: 180 },
+        basicColumns[2]!
+      ]
+      act(() => {
+        grid.update(
+          createGridElement({
+            rowCount: 1,
+            rowOverscan: 0,
+            columnOverscan: 0,
+            columns: resizedColumns
+          })
+        )
+      })
+
+      expect(cellGeometry(findBodyCellFrame(grid, 'region-0').props.style)).toMatchObject({
+        left: 260,
+        width: 100
+      })
+    })
+
+    it('removes a newly pinned column from center cells without scrolling', () => {
+      const grid = renderGrid({ rowCount: 1, rowOverscan: 0, columnOverscan: 0 })
+      layoutGrid(grid, { width: 400, height: 200 })
+
+      const newlyPinnedColumns = [
+        basicColumns[0]!,
+        { ...basicColumns[1]!, pinned: 'left' },
+        basicColumns[2]!
+      ]
+      act(() => {
+        grid.update(
+          createGridElement({
+            rowCount: 1,
+            rowOverscan: 0,
+            columnOverscan: 0,
+            columns: newlyPinnedColumns
+          })
+        )
+      })
+
+      expect(findBodyCellContent(grid, 'name-0')).toHaveLength(0)
+      expect(findRenderedNodes(grid, 'grid-pinned-cell-0-name')).toHaveLength(1)
+    })
+
+    it('updates visible cell geometry when columns are reordered without scrolling', () => {
+      const grid = renderGrid({ rowCount: 1, rowOverscan: 0, columnOverscan: 0 })
+      layoutGrid(grid, { width: 150, height: 200 })
+
+      const reorderedColumns = [basicColumns[2]!, basicColumns[0]!, basicColumns[1]!]
+      act(() => {
+        grid.update(
+          createGridElement({
+            rowCount: 1,
+            rowOverscan: 0,
+            columnOverscan: 0,
+            columns: reorderedColumns
+          })
+        )
+      })
+
+      expect(cellGeometry(findBodyCellFrame(grid, 'id-0').props.style)).toMatchObject({
+        left: 100,
+        width: 80
+      })
     })
   })
 

@@ -576,7 +576,17 @@ function emptyWindow(): RenderWindow {
   }
 }
 function sameRange(a: ItemRange, b: ItemRange): boolean {
-  return a.startIndex === b.startIndex && a.endIndex === b.endIndex
+  return (
+    a.startIndex === b.startIndex &&
+    a.endIndex === b.endIndex &&
+    a.items.length === b.items.length &&
+    a.items.every(
+      (item, index) =>
+        item.index === b.items[index]?.index &&
+        item.offset === b.items[index]?.offset &&
+        item.size === b.items[index]?.size
+    )
+  )
 }
 
 type GridProfilingRecorder = {

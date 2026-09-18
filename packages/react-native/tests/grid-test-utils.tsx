@@ -1,4 +1,10 @@
-import { act, create, type ReactElement, type ReactTestRenderer } from 'react-test-renderer'
+import {
+  act,
+  create,
+  type ReactElement,
+  type ReactTestInstance,
+  type ReactTestRenderer
+} from 'react-test-renderer'
 import {
   DataGrid,
   RowVirtualizedDataGrid,
@@ -153,6 +159,32 @@ export function findBodyCellContent(grid: ReactTestRenderer, text: string) {
   return findScrollBody(grid).findAll((candidate) => nodeShowsText(candidate, text))
 }
 
+export function findBodyCellFrame(grid: ReactTestRenderer, text: string): ReactTestInstance {
+  let current = findBodyCellContent(grid, text)[0]
+  if (!current) throw new Error(`expected body cell content for ${text}`)
+  while (current.parent) {
+    if (hasCellGeometry(current.props.style)) return current
+    current = current.parent
+  }
+  throw new Error(`expected body cell frame for ${text}`)
+}
+
+export function cellGeometry(style: unknown): {
+  readonly left: number
+  readonly width: number
+  readonly height: number
+} {
+  if (!hasCellGeometry(style)) throw new Error('expected cell geometry')
+  return style.find(
+    (entry): entry is { readonly left: number; readonly width: number; readonly height: number } =>
+      typeof entry === 'object' &&
+      entry !== null &&
+      'left' in entry &&
+      'width' in entry &&
+      'height' in entry
+  )!
+}
+
 export function findHeaderText(grid: ReactTestRenderer, text: string) {
   return grid.root
     .findAll((candidate) => nodeShowsText(candidate, text))
@@ -189,6 +221,20 @@ function findScrollBody(grid: ReactTestRenderer) {
     (candidate) => candidate.props.testID === 'grid-vertical-scroll'
   )[0]
   return verticalScroll ?? grid.root
+}
+
+function hasCellGeometry(style: unknown): style is readonly unknown[] {
+  return (
+    Array.isArray(style) &&
+    style.some(
+      (entry) =>
+        typeof entry === 'object' &&
+        entry !== null &&
+        'left' in entry &&
+        'width' in entry &&
+        'height' in entry
+    )
+  )
 }
 
 function readNodeText(children: unknown): string | undefined {

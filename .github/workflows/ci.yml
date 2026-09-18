@@ -47,6 +47,9 @@ jobs:
           pnpm --filter @react-native-data-grid/core build
           pnpm --filter @react-native-data-grid/react-native build
 
+      - name: Smoke test packed packages as an external consumer
+        run: pnpm test:package-consumer
+
   android-e2e:
     name: Android native E2E
     needs: check

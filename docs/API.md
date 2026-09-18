@@ -31,6 +31,8 @@ Both components accept the same props. `DataGrid` virtualizes rows and columns; 
 | `onRenderRangeChange`  | `(range) => void`                   | —       | Called when the overscanned mounted row/center-column window changes     |
 | `enableProfiling`      | `boolean`                           | `false` | Dev-only React Profiler counters; disable for benchmarks                 |
 
+Both range callbacks receive `{ rows: ItemRange, columns: ColumnRange }`. `rows.items` is contiguous across `[startIndex, endIndex)`. `columns.items` contains only unpinned center columns in `[logicalStartIndex, logicalEndIndex)`; pinned columns are omitted and available through `getPinnedColumns()`.
+
 #### Styling
 
 `theme` is the small static styling surface for `root`, `header`, `headerCell`, `cell`, `pinnedCell`, and `headerText`. Theme styles override the built-in visual defaults, while the grid keeps positional geometry (`top`, `left`, `width`, and `height`) authoritative.
@@ -122,7 +124,7 @@ When using `pinned`, columns must be ordered as a contiguous left-pinned prefix,
 | ------------------------------ | ------------------- | ------------------------------------------------------ |
 | `getTotalSize()`               | `{ width, height }` | Full scrollable content size                           |
 | `getVisibleRows(viewport)`     | `ItemRange`         | Row window for `scrollY`, `viewportHeight`, `overscan` |
-| `getVisibleColumns(viewport)`  | `ItemRange`         | Center column window (excludes pinned)                 |
+| `getVisibleColumns(viewport)`  | `ColumnRange`       | Center-column window; pinned columns are excluded      |
 | `getRowOffset(rowIndex)`       | `number`            | Top offset of a row                                    |
 | `getColumnOffset(columnIndex)` | `number`            | Left offset of a column                                |
 | `getPinnedColumns()`           | `PinnedColumn[]`    | Pinned columns with `pinnedOffset` for layout          |
@@ -133,9 +135,23 @@ When using `pinned`, columns must be ordered as a contiguous left-pinned prefix,
 {
   startIndex: number   // inclusive
   endIndex: number     // exclusive
-  items: ItemSize[]    // { index, offset, size } for each index in range
+  items: ItemSize[]    // { index, offset, size } for every index in range
 }
 ```
+
+`ItemRange` is contiguous: `items` contains every index in `[startIndex, endIndex)`.
+
+#### `ColumnRange`
+
+```ts
+{
+  logicalStartIndex: number // inclusive logical column bound
+  logicalEndIndex: number   // exclusive logical column bound
+  items: ItemSize[]         // unpinned center columns within the logical interval
+}
+```
+
+`getVisibleColumns()` returns `ColumnRange`, not `ItemRange`. Its logical bounds can include pinned columns, but `items` intentionally omits those columns because they are supplied separately by `getPinnedColumns()`. Do not infer `items.length` from the logical bounds.
 
 #### `PinnedColumn`
 

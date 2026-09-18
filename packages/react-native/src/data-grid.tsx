@@ -1,5 +1,6 @@
 import {
   createGridLayout,
+  type ColumnRange,
   type CoreGridColumn,
   type ItemRange,
   type PinnedColumn
@@ -92,12 +93,12 @@ export type DataGridProps<Row> = {
   /** Called when the non-overscanned row or center-column window changes. */
   readonly onVisibleRangeChange?: (range: {
     readonly rows: ItemRange
-    readonly columns: ItemRange
+    readonly columns: ColumnRange
   }) => void
   /** Called when the overscanned row or center-column window mounted for rendering changes. */
   readonly onRenderRangeChange?: (range: {
     readonly rows: ItemRange
-    readonly columns: ItemRange
+    readonly columns: ColumnRange
   }) => void
   /** Development-only instrumentation; disable for representative release measurements. */
   readonly enableProfiling?: boolean
@@ -133,7 +134,7 @@ export type DataGridHandle = {
   resetProfiling(): void
 }
 
-type RenderWindow = { readonly rows: ItemRange; readonly columns: ItemRange }
+type RenderWindow = { readonly rows: ItemRange; readonly columns: ColumnRange }
 type ViewportSize = { readonly width: number; readonly height: number }
 
 type VirtualizedDataGridProps<Row> = DataGridProps<Row> & {
@@ -184,10 +185,10 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
     readonly updateWindow: unknown
   } | null>(null)
   const profiling = useGridProfiling(enableProfiling)
-  const allCenterColumns = useMemo<ItemRange>(
+  const allCenterColumns = useMemo<ColumnRange>(
     () => ({
-      startIndex: 0,
-      endIndex: columns.length,
+      logicalStartIndex: 0,
+      logicalEndIndex: columns.length,
       items: columns.flatMap((column, index) =>
         column.pinned ? [] : [{ index, offset: layout.getColumnOffset(index), size: column.width }]
       )
@@ -226,19 +227,19 @@ const VirtualizedDataGrid = forwardRef(function VirtualizedDataGrid<Row>(
       }
       const current = windowRef.current
       const next = {
-        rows: sameRange(current.rows, calculatedRenderWindow.rows)
+        rows: sameItemRange(current.rows, calculatedRenderWindow.rows)
           ? current.rows
           : calculatedRenderWindow.rows,
-        columns: sameRange(current.columns, calculatedRenderWindow.columns)
+        columns: sameColumnRange(current.columns, calculatedRenderWindow.columns)
           ? current.columns
           : calculatedRenderWindow.columns
       }
       const currentVisible = visibleWindowRef.current
       const nextVisible = {
-        rows: sameRange(currentVisible.rows, calculatedVisibleWindow.rows)
+        rows: sameItemRange(currentVisible.rows, calculatedVisibleWindow.rows)
           ? currentVisible.rows
           : calculatedVisibleWindow.rows,
-        columns: sameRange(currentVisible.columns, calculatedVisibleWindow.columns)
+        columns: sameColumnRange(currentVisible.columns, calculatedVisibleWindow.columns)
           ? currentVisible.columns
           : calculatedVisibleWindow.columns
       }
@@ -451,7 +452,7 @@ export const RowVirtualizedDataGrid = forwardRef(function RowVirtualizedDataGrid
 
 type HeaderProps<Row> = {
   columns: readonly DataGridColumn<Row>[]
-  centerColumns: ItemRange
+  centerColumns: ColumnRange
   pinnedColumns: readonly PinnedColumn[]
   viewportWidth: number
   scrollX: Animated.Value
@@ -516,7 +517,7 @@ type RowProps<Row> = {
   onCellLongPress?: (event: DataGridCellEvent<Row>) => void
   onRowPress?: (event: DataGridRowEvent<Row>) => void
   columns: readonly DataGridColumn<Row>[]
-  centerColumns: ItemRange
+  centerColumns: ColumnRange
   pinnedColumns: readonly PinnedColumn[]
   viewportWidth: number
   scrollX: Animated.Value
@@ -838,7 +839,7 @@ function renderHeader<Row>(column: DataGridColumn<Row>, theme?: DataGridTheme): 
 function emptyWindow(): RenderWindow {
   return {
     rows: { startIndex: 0, endIndex: 0, items: [] },
-    columns: { startIndex: 0, endIndex: 0, items: [] }
+    columns: { logicalStartIndex: 0, logicalEndIndex: 0, items: [] }
   }
 }
 
@@ -922,10 +923,24 @@ function clampScrollOffset(offset: number, contentWidth: number, viewportWidth: 
   return Math.max(0, Math.min(offset, Math.max(0, contentWidth - viewportWidth)))
 }
 
-function sameRange(a: ItemRange, b: ItemRange): boolean {
+function sameItemRange(a: ItemRange, b: ItemRange): boolean {
   return (
     a.startIndex === b.startIndex &&
     a.endIndex === b.endIndex &&
+    a.items.length === b.items.length &&
+    a.items.every(
+      (item, index) =>
+        item.index === b.items[index]?.index &&
+        item.offset === b.items[index]?.offset &&
+        item.size === b.items[index]?.size
+    )
+  )
+}
+
+function sameColumnRange(a: ColumnRange, b: ColumnRange): boolean {
+  return (
+    a.logicalStartIndex === b.logicalStartIndex &&
+    a.logicalEndIndex === b.logicalEndIndex &&
     a.items.length === b.items.length &&
     a.items.every(
       (item, index) =>

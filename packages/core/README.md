@@ -40,7 +40,9 @@ Pinned columns are edge-oriented. Left-pinned columns must be a contiguous prefi
 ## Exports
 
 - `createGridLayout(options)` — build a `GridLayout` instance
-- Types: `CoreGridColumn`, `GridLayout`, `GridLayoutOptions`, `ItemRange`, `ItemSize`, `PinnedColumn`, `TotalSize`, `Viewport`
+- Types: `ColumnRange`, `CoreGridColumn`, `GridLayout`, `GridLayoutOptions`, `ItemRange`, `ItemSize`, `PinnedColumn`, `TotalSize`, `Viewport`
+
+`getVisibleRows()` returns a contiguous `ItemRange`: `items` contains every index in `[startIndex, endIndex)`. `getVisibleColumns()` returns a `ColumnRange` with explicit `logicalStartIndex` and `logicalEndIndex`; its `items` contains only unpinned center columns in that logical interval. Pinned columns are returned separately by `getPinnedColumns()`.
 
 See the [API reference](../../docs/API.md#core-package) for details.
 

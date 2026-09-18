@@ -58,16 +58,16 @@ export type RenderGridOptions<Row = TestRow> = {
   readonly onVisibleRangeChange?: (range: {
     readonly rows: { readonly startIndex: number; readonly endIndex: number }
     readonly columns: {
-      readonly startIndex: number
-      readonly endIndex: number
+      readonly logicalStartIndex: number
+      readonly logicalEndIndex: number
       readonly items: readonly { readonly index: number }[]
     }
   }) => void
   readonly onRenderRangeChange?: (range: {
     readonly rows: { readonly startIndex: number; readonly endIndex: number }
     readonly columns: {
-      readonly startIndex: number
-      readonly endIndex: number
+      readonly logicalStartIndex: number
+      readonly logicalEndIndex: number
       readonly items: readonly { readonly index: number }[]
     }
   }) => void

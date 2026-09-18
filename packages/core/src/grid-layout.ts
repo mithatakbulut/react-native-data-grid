@@ -25,8 +25,23 @@ export type ItemSize = {
 }
 
 export type ItemRange = {
+  /** Inclusive item index. `items` contains every index from `startIndex` through `endIndex - 1`. */
   readonly startIndex: number
+  /** Exclusive item index. `items` contains every index from `startIndex` through `endIndex - 1`. */
   readonly endIndex: number
+  readonly items: readonly ItemSize[]
+}
+
+/**
+ * The logical column interval considered for a center-column render window.
+ *
+ * `items` contains only unpinned columns in this interval. Pinned columns can be
+ * within `[logicalStartIndex, logicalEndIndex)` but are intentionally omitted
+ * because callers render them from `getPinnedColumns()`.
+ */
+export type ColumnRange = {
+  readonly logicalStartIndex: number
+  readonly logicalEndIndex: number
   readonly items: readonly ItemSize[]
 }
 
@@ -44,7 +59,7 @@ export type TotalSize = {
 export type GridLayout = {
   getTotalSize(): TotalSize
   getVisibleRows(viewport: Pick<Viewport, 'scrollY' | 'viewportHeight' | 'overscan'>): ItemRange
-  getVisibleColumns(viewport: Pick<Viewport, 'scrollX' | 'viewportWidth' | 'overscan'>): ItemRange
+  getVisibleColumns(viewport: Pick<Viewport, 'scrollX' | 'viewportWidth' | 'overscan'>): ColumnRange
   getRowOffset(rowIndex: number): number
   getColumnOffset(columnIndex: number): number
   getPinnedColumns(): readonly PinnedColumn[]
@@ -148,11 +163,11 @@ function getColumnRange(
   scrollOffset: number,
   viewportSize: number,
   overscan: number
-): ItemRange {
+): ColumnRange {
   assertNonNegativeInteger(overscan, 'overscan')
   assertNonNegativeFinite(viewportSize, 'viewport size')
   const normalizedOffset = normalizeScrollOffset(scrollOffset)
-  if (columns.length === 0 || viewportSize === 0) return emptyRange()
+  if (columns.length === 0 || viewportSize === 0) return emptyColumnRange()
 
   const firstVisible = findFirstColumnEndingAfter(columns, offsets, normalizedOffset)
   const viewportEnd = normalizedOffset + viewportSize
@@ -172,7 +187,7 @@ function getColumnRange(
       items.push({ index, offset: offsets[index]!, size: columns[index]!.width })
     }
   }
-  return { startIndex, endIndex, items }
+  return { logicalStartIndex: startIndex, logicalEndIndex: endIndex, items }
 }
 
 function findFirstColumnEndingAfter(
@@ -257,6 +272,9 @@ function makeRange(
 
 function emptyRange(): ItemRange {
   return { startIndex: 0, endIndex: 0, items: [] }
+}
+function emptyColumnRange(): ColumnRange {
+  return { logicalStartIndex: 0, logicalEndIndex: 0, items: [] }
 }
 function normalizeScrollOffset(offset: number): number {
   assertFinite(offset, 'scroll offset')

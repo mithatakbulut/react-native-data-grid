@@ -399,8 +399,8 @@ export default function App() {
             setMetrics({
               rowStart: rows.startIndex,
               rowEnd: rows.endIndex,
-              columnStart: visibleColumns.startIndex,
-              columnEnd: visibleColumns.endIndex,
+              columnStart: visibleColumns.logicalStartIndex,
+              columnEnd: visibleColumns.logicalEndIndex,
               rows: rows.items.length,
               centerColumns: visibleColumns.items.length
             })
@@ -422,8 +422,8 @@ export default function App() {
             setMetrics({
               rowStart: rows.startIndex,
               rowEnd: rows.endIndex,
-              columnStart: visibleColumns.startIndex,
-              columnEnd: visibleColumns.endIndex,
+              columnStart: visibleColumns.logicalStartIndex,
+              columnEnd: visibleColumns.logicalEndIndex,
               rows: rows.items.length,
               centerColumns: visibleColumns.items.length
             })

@@ -103,7 +103,7 @@ You do not need to allocate an array of 100,000 rows — provide a `getRow` acce
 **`@react-native-data-grid/core`**
 
 - `createGridLayout`
-- `CoreGridColumn`, `GridLayout`, `GridLayoutOptions`, `ItemRange`, `ItemSize`, `PinnedColumn`, `TotalSize`, `Viewport`
+- `ColumnRange`, `CoreGridColumn`, `GridLayout`, `GridLayoutOptions`, `ItemRange`, `ItemSize`, `PinnedColumn`, `TotalSize`, `Viewport`
 
 Full prop reference: [docs/API.md](./docs/API.md).
 
@@ -172,7 +172,7 @@ import { RowVirtualizedDataGrid } from '@react-native-data-grid/react-native'
 
 The header sits outside the vertical scroller. A single horizontal scroller owns `scrollX`; pinned cells are counter-translated from that animated value — no synchronized vertical lists or per-row horizontal scrollers.
 
-Ranges use exclusive bounds: `[startIndex, endIndex)`.
+Row ranges use exclusive bounds: `[startIndex, endIndex)` and contain every index in that interval. Center-column ranges use explicit logical bounds, `[logicalStartIndex, logicalEndIndex)`, while their `items` intentionally contains only unpinned columns; use `getPinnedColumns()` for pinned geometry.
 
 ## Limitations
 

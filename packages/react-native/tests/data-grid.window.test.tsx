@@ -133,11 +133,11 @@ describe('DataGrid window behaviour', () => {
 
       expect(onVisibleRangeChange.mock.lastCall?.[0]).toMatchObject({
         rows: { startIndex: 0, endIndex: 4 },
-        columns: { startIndex: 0, endIndex: 2 }
+        columns: { logicalStartIndex: 0, logicalEndIndex: 2 }
       })
       expect(onRenderRangeChange.mock.lastCall?.[0]).toMatchObject({
         rows: { startIndex: 0, endIndex: 6 },
-        columns: { startIndex: 0, endIndex: 3 }
+        columns: { logicalStartIndex: 0, logicalEndIndex: 3 }
       })
     })
 

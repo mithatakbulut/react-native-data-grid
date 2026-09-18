@@ -111,11 +111,11 @@ describe('createGridLayout', () => {
       ).toThrow('right-pinned columns must appear after all left-pinned and unpinned columns')
     })
 
-    it('excludes pinned columns from the center cells while retaining the logical range', () => {
+    it('exposes logical bounds separately from unpinned center-column items', () => {
       expect(layout().getVisibleColumns({ scrollX: 190, viewportWidth: 160, overscan: 1 })).toEqual(
         {
-          startIndex: 0,
-          endIndex: 5,
+          logicalStartIndex: 0,
+          logicalEndIndex: 5,
           items: [
             { index: 1, offset: 80, size: 180 },
             { index: 2, offset: 260, size: 80 },
@@ -138,8 +138,8 @@ describe('createGridLayout', () => {
       expect(
         multiPinnedLayout().getVisibleColumns({ scrollX: 300, viewportWidth: 150, overscan: 2 })
       ).toEqual({
-        startIndex: 0,
-        endIndex: 6,
+        logicalStartIndex: 0,
+        logicalEndIndex: 6,
         items: [
           { index: 2, offset: 240, size: 120 },
           { index: 3, offset: 360, size: 140 }
@@ -150,7 +150,7 @@ describe('createGridLayout', () => {
     it('does not produce duplicate center cells when the viewport intersects only a pinned column', () => {
       expect(
         multiPinnedLayout().getVisibleColumns({ scrollX: 500, viewportWidth: 72, overscan: 0 })
-      ).toEqual({ startIndex: 4, endIndex: 5, items: [] })
+      ).toEqual({ logicalStartIndex: 4, logicalEndIndex: 5, items: [] })
     })
 
     it('keeps the logical scroll target separate from pinned display offsets', () => {
@@ -250,8 +250,8 @@ describe('createGridLayout', () => {
       })
       expect(layout().getVisibleColumns({ scrollX: 190, viewportWidth: 160, overscan: 0 })).toEqual(
         {
-          startIndex: 1,
-          endIndex: 4,
+          logicalStartIndex: 1,
+          logicalEndIndex: 4,
           items: [
             { index: 1, offset: 80, size: 180 },
             { index: 2, offset: 260, size: 80 },
@@ -277,8 +277,8 @@ describe('createGridLayout', () => {
       })
       expect(grid.getVisibleColumns({ scrollX: 999_999, viewportWidth: 100, overscan: 0 })).toEqual(
         {
-          startIndex: 1,
-          endIndex: 2,
+          logicalStartIndex: 1,
+          logicalEndIndex: 2,
           items: [{ index: 1, offset: 100, size: 100 }]
         }
       )
@@ -293,8 +293,8 @@ describe('createGridLayout', () => {
         columns: [{ id: 'only', width: 120 }]
       })
       expect(grid.getVisibleColumns({ scrollX: 500, viewportWidth: 80, overscan: 0 })).toEqual({
-        startIndex: 0,
-        endIndex: 1,
+        logicalStartIndex: 0,
+        logicalEndIndex: 1,
         items: [{ index: 0, offset: 0, size: 120 }]
       })
     })
@@ -304,8 +304,8 @@ describe('createGridLayout', () => {
       expect(grid.getTotalSize().width).toBe(0)
       expect(grid.getPinnedColumns()).toEqual([])
       expect(grid.getVisibleColumns({ scrollX: 0, viewportWidth: 400, overscan: 1 })).toEqual({
-        startIndex: 0,
-        endIndex: 0,
+        logicalStartIndex: 0,
+        logicalEndIndex: 0,
         items: []
       })
     })
@@ -320,8 +320,8 @@ describe('createGridLayout', () => {
         ]
       })
       expect(grid.getVisibleColumns({ scrollX: 0, viewportWidth: 400, overscan: 2 })).toEqual({
-        startIndex: 0,
-        endIndex: 2,
+        logicalStartIndex: 0,
+        logicalEndIndex: 2,
         items: []
       })
     })
@@ -336,8 +336,8 @@ describe('createGridLayout', () => {
         ]
       })
       expect(grid.getVisibleColumns({ scrollX: 100, viewportWidth: 400, overscan: 2 })).toEqual({
-        startIndex: 0,
-        endIndex: 2,
+        logicalStartIndex: 0,
+        logicalEndIndex: 2,
         items: []
       })
     })
@@ -346,8 +346,8 @@ describe('createGridLayout', () => {
       expect(
         layout().getVisibleColumns({ scrollX: 0, viewportWidth: 10_000, overscan: 0 })
       ).toEqual({
-        startIndex: 0,
-        endIndex: 5,
+        logicalStartIndex: 0,
+        logicalEndIndex: 5,
         items: [
           { index: 1, offset: 80, size: 180 },
           { index: 2, offset: 260, size: 80 },
@@ -367,8 +367,8 @@ describe('createGridLayout', () => {
         ]
       })
       expect(grid.getVisibleColumns({ scrollX: 80, viewportWidth: 60, overscan: 0 })).toEqual({
-        startIndex: 1,
-        endIndex: 2,
+        logicalStartIndex: 1,
+        logicalEndIndex: 2,
         items: [{ index: 1, offset: 80, size: 120 }]
       })
     })

@@ -1,5 +1,6 @@
 export {
   createGridLayout,
+  type ColumnRange,
   type CoreGridColumn,
   type GridLayout,
   type GridLayoutOptions,

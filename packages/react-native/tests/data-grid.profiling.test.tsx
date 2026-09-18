@@ -1,4 +1,4 @@
-import { act } from 'react-test-renderer'
+import { act } from './modern-test-renderer.js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true

@@ -4,7 +4,7 @@ import {
   type ReactElement,
   type ReactTestInstance,
   type ReactTestRenderer
-} from 'react-test-renderer'
+} from './modern-test-renderer.js'
 import {
   DataGrid,
   RowVirtualizedDataGrid,

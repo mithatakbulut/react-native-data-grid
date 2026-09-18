@@ -79,18 +79,15 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.3.0
-      '@types/react-test-renderer':
-        specifier: 19.0.0
-        version: 19.0.0
       react:
         specifier: ^19.0.0
         version: 19.0.0
       react-native:
         specifier: ^0.79.0
         version: 0.79.0(@babel/core@7.29.7)(@types/react@19.3.0)(react@19.0.0)
-      react-test-renderer:
-        specifier: 19.0.0
-        version: 19.0.0(react@19.0.0)
+      test-renderer:
+        specifier: 1.0.0
+        version: 1.0.0(@types/react@19.3.0)(react@19.0.0)
       vitest:
         specifier: 4.1.11
         version: 4.1.11(@types/node@26.6.1)(vite@8.3.0(@types/node@26.6.1)(terser@5.51.2))
@@ -1047,8 +1044,10 @@ packages:
   '@types/node@26.6.1':
     resolution: {integrity: sha512-VqGJBMCtdhqkBUCcBLvywI0NJ+KLuVzgNnlBUNFOQjqVxzo2lxLUNg1DSey8+u2u6ktswSAxg+s68QLzWHNOuA==}
 
-  '@types/react-test-renderer@19.0.0':
-    resolution: {integrity: sha512-qDVnNybqFm2eZKJ4jD34EvRd6VHD67KjgnWaEMM0Id9L22EpWe3nOSVKHWL1XWRCxUWe3lhXwlEeCKD1BlJCQA==}
+  '@types/react-reconciler@0.31.0':
+    resolution: {integrity: sha512-wa1KtV3SHKnWeLHfZFg/7nrPSe/Ejdn+qbanNX4V6i9I7C3ECKPfBnC1KM3ef58KFWEohLmTvoTH5XuEIKGX2g==}
+    peerDependencies:
+      '@types/react': '*'
 
   '@types/react@19.3.0':
     resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
@@ -2662,9 +2661,6 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-is@19.3.0:
-    resolution: {integrity: sha512-UpMYezM4v5/18F28aC66AEsjXIgE02kyEMH6yLdgLXu/UTfa1Ntwck/nNLrbqJsEXW7gPb0coNO9FQse9WTovA==}
-
   react-native-edge-to-edge@1.6.0:
     resolution: {integrity: sha512-2WCNdE3Qd6Fwg9+4BpbATUxCLcouF6YRY7K+J36KJ4l3y+tWN6XCqAC4DuoGblAAbb2sLkhEDp4FOlbOIot2Og==}
     peerDependencies:
@@ -2688,14 +2684,15 @@ packages:
       '@types/react':
         optional: true
 
+  react-reconciler@0.31.0:
+    resolution: {integrity: sha512-7Ob7Z+URmesIsIVRjnLoDGwBEG/tVitidU0nMsqX/eeJaLY89RISO/10ERe0MqmzuKUUB1rmY+h1itMbUHg9BQ==}
+    engines: {node: '>=0.10.0'}
+    peerDependencies:
+      react: ^19.0.0
+
   react-refresh@0.14.2:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
     engines: {node: '>=0.10.0'}
-
-  react-test-renderer@19.0.0:
-    resolution: {integrity: sha512-oX5u9rOQlHzqrE/64CNr0HB0uWxkCQmZNSfozlYvwE71TLVgeZxVf0IjouGEr1v7r1kcDifdAJBeOhdhxsG/DA==}
-    peerDependencies:
-      react: ^19.0.0
 
   react@19.0.0:
     resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
@@ -2960,6 +2957,11 @@ packages:
   test-exclude@6.0.0:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
+
+  test-renderer@1.0.0:
+    resolution: {integrity: sha512-OxXKpc45O0sQ0JzVg5LxaOtFXxz2tWzH6MoTZYtHP1/dYA6fGhHuHP7Fe7viQk88BNoD+XnqSTgL391pFD4e4Q==}
+    peerDependencies:
+      react: ^19.0.0
 
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
@@ -4592,7 +4594,7 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/react-test-renderer@19.0.0':
+  '@types/react-reconciler@0.31.0(@types/react@19.3.0)':
     dependencies:
       '@types/react': 19.3.0
 
@@ -6322,8 +6324,6 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-is@19.3.0: {}
-
   react-native-edge-to-edge@1.6.0(react-native@0.79.0(@babel/core@7.29.7)(@types/react@19.3.0)(react@19.0.0))(react@19.0.0):
     dependencies:
       react: 19.0.0
@@ -6382,13 +6382,12 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  react-refresh@0.14.2: {}
-
-  react-test-renderer@19.0.0(react@19.0.0):
+  react-reconciler@0.31.0(react@19.0.0):
     dependencies:
       react: 19.0.0
-      react-is: 19.3.0
       scheduler: 0.25.0
+
+  react-refresh@0.14.2: {}
 
   react@19.0.0: {}
 
@@ -6658,6 +6657,14 @@ snapshots:
       '@istanbuljs/schema': 0.1.6
       glob: 7.2.3
       minimatch: 3.1.5
+
+  test-renderer@1.0.0(@types/react@19.3.0)(react@19.0.0):
+    dependencies:
+      '@types/react-reconciler': 0.31.0(@types/react@19.3.0)
+      react: 19.0.0
+      react-reconciler: 0.31.0(react@19.0.0)
+    transitivePeerDependencies:
+      - '@types/react'
 
   thenify-all@1.6.0:
     dependencies:

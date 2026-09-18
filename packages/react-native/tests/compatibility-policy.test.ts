@@ -38,4 +38,27 @@ describe('published compatibility policy', () => {
     expect(workflow).toContain('react-native: 0.87.0')
     expect(workflow).toContain('node scripts/test-react-native-compatibility.mjs')
   })
+
+  it('uses the supported React 19 test renderer instead of deprecated React Test Renderer', async () => {
+    const packageJson = JSON.parse(
+      await readFile(resolve(packageRoot, 'package.json'), 'utf8')
+    ) as {
+      devDependencies: Record<string, string>
+    }
+    const testHarness = await readFile(
+      resolve(packageRoot, 'tests/modern-test-renderer.ts'),
+      'utf8'
+    )
+    const compatibilityRunner = await readFile(
+      resolve(repositoryRoot, 'scripts/test-react-native-compatibility.mjs'),
+      'utf8'
+    )
+
+    expect(packageJson.devDependencies).toMatchObject({ 'test-renderer': '1.0.0' })
+    expect(packageJson.devDependencies).not.toHaveProperty('react-test-renderer')
+    expect(packageJson.devDependencies).not.toHaveProperty('@types/react-test-renderer')
+    expect(testHarness).toContain("from 'test-renderer'")
+    expect(compatibilityRunner).toContain("'test-renderer': testRendererVersion")
+    expect(compatibilityRunner).not.toContain("'react-test-renderer':")
+  })
 })

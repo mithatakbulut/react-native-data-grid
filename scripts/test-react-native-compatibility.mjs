@@ -16,6 +16,7 @@ const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const packageRoot = join(repositoryRoot, 'packages', 'react-native')
 const coreRoot = join(repositoryRoot, 'packages', 'core')
 const fixtureRoot = await mkdtemp(join(tmpdir(), 'react-native-data-grid-compatibility-'))
+const testRendererVersion = reactVersion.startsWith('19.2.') ? '1.2.0' : '1.0.0'
 
 function run(command, args) {
   const result = spawnSync(command, args, {
@@ -35,6 +36,7 @@ try {
     cp(join(coreRoot, 'dist'), join(fixtureRoot, 'core-dist'), { recursive: true }),
     cp(join(repositoryRoot, 'tsconfig.base.json'), join(fixtureRoot, 'tsconfig.base.json'))
   ])
+  await rm(join(fixtureRoot, 'tests', 'compatibility-policy.test.ts'))
 
   const sourcePackage = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'))
   await cp(join(fixtureRoot, 'core-dist'), join(fixtureRoot, 'core'), { recursive: true })
@@ -53,11 +55,10 @@ try {
           '@react-native-data-grid/core': `file:${join(fixtureRoot, 'core')}`,
           react: reactVersion,
           'react-native': reactNativeVersion,
-          'react-test-renderer': reactVersion
+          'test-renderer': testRendererVersion
         },
         devDependencies: {
           '@types/react': '^19.1.0',
-          '@types/react-test-renderer': '^19.0.0',
           typescript: '^5.9.3',
           vitest: sourcePackage.devDependencies.vitest
         }
